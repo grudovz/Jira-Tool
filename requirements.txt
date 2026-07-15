@@ -4,3 +4,5 @@ pygetwindow
 psutil
 opencv-python
 Pillow
+jira
+python-dotenv
