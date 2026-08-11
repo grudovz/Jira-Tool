@@ -6,3 +6,6 @@ opencv-python
 Pillow
 jira
 python-dotenv
+streamlit
+openai
+pytest

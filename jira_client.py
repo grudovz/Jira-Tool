@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from dotenv import load_dotenv
 from jira import JIRA
 
@@ -11,6 +12,10 @@ JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
 
 def get_jira_client() -> JIRA:
     """Return an authenticated JIRA client using a Personal Access Token (Bearer auth)."""
+    if not JIRA_URL:
+        raise ValueError("JIRA_URL is not set in .env")
+    if not JIRA_API_TOKEN:
+        raise ValueError("JIRA_API_TOKEN is not set in .env")
     return JIRA(
         server=JIRA_URL,
         token_auth=JIRA_API_TOKEN,
@@ -73,12 +78,35 @@ def assign_issue(issue_key: str, username: str):
     print(f"Assigned {issue_key} to {username}")
 
 
-def get_my_open_issues(project: str = None):
+def get_my_open_issues(project: Optional[str] = None):
     """Return all open issues assigned to the current user, optionally filtered by project."""
     jql = "assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC"
     if project:
         jql = f"project = {project} AND {jql}"
     return search_issues(jql)
+
+
+def attach_file(issue_key: str, attachment, filename: "str | None" = None):
+    """Attach a file to an existing issue.
+
+    attachment can be:
+      - A file path string, e.g. attach_file('PROJ-123', 'C:/tmp/screenshot.png')
+      - A bytes or BytesIO object (e.g. from a clipboard paste), e.g.
+        attach_file('PROJ-123', image_bytes, filename='screenshot.png')
+
+    filename is required when attachment is bytes/BytesIO; ignored for file paths.
+    """
+    import io
+    if isinstance(attachment, (bytes, bytearray)):
+        attachment = io.BytesIO(attachment)
+    if isinstance(attachment, io.IOBase):
+        if not filename:
+            raise ValueError("filename is required when attaching bytes or a file-like object")
+        jira.add_attachment(issue=issue_key, attachment=attachment, filename=filename)
+    else:
+        # File path string — let the library derive the filename
+        jira.add_attachment(issue=issue_key, attachment=str(attachment))
+    print(f"Attachment added to {issue_key}")
 
 
 def create_issue(
@@ -88,10 +116,15 @@ def create_issue(
     project: str = DEFAULT_PROJECT,
     epic_link: str = DEFAULT_EPIC_LINK,
     component: str = DEFAULT_COMPONENT,
+    attachments: "list | None" = None,
 ):
     """Create a new issue in the default project.
     issue_type: 'Story', 'Bug', 'Task', 'Sub-task', etc.
     Pass epic_link=None or component=None to omit those fields.
+    attachments: optional list of attachments added after creation. Each item is either:
+      - a file path string, e.g. 'C:/tmp/screenshot.png'
+      - a dict with keys 'file' (bytes/BytesIO) and 'filename' (str),
+        e.g. {"file": image_bytes, "filename": "screenshot.png"}
     """
     fields = {
         "project": project,
@@ -105,6 +138,12 @@ def create_issue(
         fields["components"] = [{"name": component}]
     new_issue = jira.create_issue(fields=fields)
     print(f"Created {new_issue.key}: {summary}")
+    if attachments:
+        for item in attachments:
+            if isinstance(item, dict):
+                attach_file(new_issue.key, item["file"], filename=item["filename"])
+            else:
+                attach_file(new_issue.key, item)
     return new_issue
 
 
