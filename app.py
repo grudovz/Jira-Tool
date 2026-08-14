@@ -5,7 +5,7 @@ This file contains no business logic.
 """
 import streamlit as st
 from story_parser import parse_story_text
-from jira_client import create_issue, update_issue
+from jira_client import create_issue, update_issue, add_comment
 import ai_client
 
 st.set_page_config(page_title="JIRA Story Tool", layout="wide")
@@ -109,4 +109,19 @@ with right:
 if st.session_state.analysis:
     st.divider()
     st.subheader("AI Analysis")
-    st.markdown(st.session_state.analysis)
+    st.caption("Editable — dictate corrections directly into this box before posting.")
+    st.text_area(
+        label="AI Analysis",
+        height=250,
+        key="analysis",
+        label_visibility="collapsed",
+    )
+    if st.button("Post Analysis as Comment"):
+        if not issue_key.strip():
+            st.error("Enter an issue key above first.")
+        else:
+            try:
+                add_comment(issue_key.strip(), st.session_state.analysis)
+                st.success(f"Analysis posted as comment to {issue_key}")
+            except Exception as e:
+                st.error(str(e))

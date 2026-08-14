@@ -3,7 +3,9 @@ LLM integration for story analysis.
 Supports Azure OpenAI (enterprise, recommended for company data) and Ollama (local, offline).
 
 Configure via .env:
-  AI_PROVIDER=azure   → set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT
+  AI_PROVIDER=azure   → set AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_DEPLOYMENT
+                        Auth: run `az login` once (Entra ID, preferred — no secret stored), or
+                        set AZURE_OPENAI_API_KEY to use key-based auth instead.
   AI_PROVIDER=ollama  → set OLLAMA_BASE_URL (default http://localhost:11434/v1), OLLAMA_MODEL
 
 The app works without any AI configuration — is_available() returns False and the UI
@@ -32,8 +34,8 @@ def is_available() -> bool:
     """Return True if the configured AI provider has the required credentials in the environment."""
     if _AI_PROVIDER == "ollama":
         return True  # Ollama is local; connectivity is checked at call time, not here
-    # Azure requires both endpoint and key
-    return bool(os.getenv("AZURE_OPENAI_ENDPOINT") and os.getenv("AZURE_OPENAI_API_KEY"))
+    # Azure requires an endpoint; auth is either an API key or an Entra ID token (az login)
+    return bool(os.getenv("AZURE_OPENAI_ENDPOINT"))
 
 
 def _get_client():
@@ -48,14 +50,24 @@ def _get_client():
         return client, os.getenv("OLLAMA_MODEL", "phi4")
 
     endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    if not endpoint:
+        raise RuntimeError("AZURE_OPENAI_ENDPOINT must be set in .env")
+
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
-    if not endpoint or not api_key:
-        raise RuntimeError("AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set in .env")
-    client = AzureOpenAI(
-        azure_endpoint=endpoint,
-        api_key=api_key,
-        api_version="2024-02-01",
-    )
+    if api_key:
+        client = AzureOpenAI(azure_endpoint=endpoint, api_key=api_key, api_version="2024-02-01")
+    else:
+        # Entra ID auth via `az login` — no secret stored, tokens are short-lived and auto-refreshed.
+        from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+        token_provider = get_bearer_token_provider(
+            DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+        )
+        client = AzureOpenAI(
+            azure_endpoint=endpoint,
+            azure_ad_token_provider=token_provider,
+            api_version="2024-02-01",
+        )
     return client, os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4")
 
 
