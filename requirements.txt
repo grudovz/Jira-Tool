@@ -1,12 +1,4 @@
-pyautogui
-keyboard
-pygetwindow
-psutil
-opencv-python
-Pillow
 jira
 python-dotenv
 streamlit
-openai
-azure-identity
 pytest

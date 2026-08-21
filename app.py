@@ -1,12 +1,11 @@
 """
 Streamlit UI for the JIRA Story Tool.
-All JIRA API calls go via jira_client. All LLM calls go via ai_client.
+All JIRA API calls go via jira_client.
 This file contains no business logic.
 """
 import streamlit as st
-from story_parser import parse_story_text
-from jira_client import create_issue, update_issue, add_comment
-import ai_client
+from story_parser import parse_issue
+from jira_client import create_issue, update_issue
 
 st.set_page_config(page_title="JIRA Story Tool", layout="wide")
 st.title("JIRA Story Tool")
@@ -14,8 +13,6 @@ st.title("JIRA Story Tool")
 # --- Session state ---
 if "parsed" not in st.session_state:
     st.session_state.parsed = {}
-if "analysis" not in st.session_state:
-    st.session_state.analysis = None
 if "last_created" not in st.session_state:
     st.session_state.last_created = None
 
@@ -32,8 +29,7 @@ with left:
     )
     if st.button("Parse"):
         if raw_text.strip():
-            st.session_state.parsed = parse_story_text(raw_text)
-            st.session_state.analysis = None
+            st.session_state.parsed = parse_issue(raw_text)
         else:
             st.warning("Paste some text first.")
 
@@ -43,7 +39,6 @@ with right:
 
     title = st.text_input("Title *", value=p.get("title") or "")
     description = st.text_area("Description", value=p.get("description") or "", height=120)
-    ac = st.text_area("Acceptance Criteria", value=p.get("acceptance_criteria") or "", height=80)
 
     col_sp, col_comp = st.columns([1, 2])
     with col_sp:
@@ -60,7 +55,7 @@ with right:
     st.divider()
 
     # --- Actions ---
-    col_create, col_update, col_analyse = st.columns(3)
+    col_create, col_update = st.columns(2)
 
     with col_create:
         if st.button("Create"):
@@ -90,38 +85,3 @@ with right:
                     st.success(f"Updated {issue_key}")
                 except Exception as e:
                     st.error(str(e))
-
-    with col_analyse:
-        ai_ready = ai_client.is_available()
-        if st.button("Analyse", disabled=not ai_ready):
-            if not title.strip():
-                st.error("Title is required.")
-            else:
-                with st.spinner("Analysing..."):
-                    try:
-                        st.session_state.analysis = ai_client.analyse_story(title, description, ac)
-                    except Exception as e:
-                        st.error(str(e))
-        if not ai_ready:
-            st.caption("AI not configured — set AI_PROVIDER in .env to enable.")
-
-# --- AI Analysis output ---
-if st.session_state.analysis:
-    st.divider()
-    st.subheader("AI Analysis")
-    st.caption("Editable — dictate corrections directly into this box before posting.")
-    st.text_area(
-        label="AI Analysis",
-        height=250,
-        key="analysis",
-        label_visibility="collapsed",
-    )
-    if st.button("Post Analysis as Comment"):
-        if not issue_key.strip():
-            st.error("Enter an issue key above first.")
-        else:
-            try:
-                add_comment(issue_key.strip(), st.session_state.analysis)
-                st.success(f"Analysis posted as comment to {issue_key}")
-            except Exception as e:
-                st.error(str(e))

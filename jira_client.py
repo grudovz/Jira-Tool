@@ -31,6 +31,7 @@ jira = get_jira_client()
 DEFAULT_PROJECT = "TRSC"
 DEFAULT_EPIC_LINK = "LPDA-3064"
 DEFAULT_COMPONENT = "Service center"
+STORY_POINTS_FIELD = "customfield_10002"  # "Estimate" in the JIRA UI
 
 
 def get_issue(issue_key: str):
@@ -45,10 +46,13 @@ def search_issues(jql: str, max_results: int = 50):
     return jira.search_issues(jql, maxResults=max_results)
 
 
-def update_issue(issue_key: str, **fields):
+def update_issue(issue_key: str, story_points: "int | float | None" = None, **fields):
     """Update fields on an issue.
     Example: update_issue('PROJ-123', summary='New title', description='New description')
+    story_points sets the "Estimate" field shown in the JIRA UI.
     """
+    if story_points is not None:
+        fields[STORY_POINTS_FIELD] = story_points
     issue = jira.issue(issue_key)
     issue.update(**fields)
     print(f"Updated {issue_key}")
@@ -116,26 +120,37 @@ def create_issue(
     project: str = DEFAULT_PROJECT,
     epic_link: str = DEFAULT_EPIC_LINK,
     component: str = DEFAULT_COMPONENT,
+    story_points: "int | float | None" = None,
     attachments: "list | None" = None,
 ):
     """Create a new issue in the default project.
-    issue_type: 'Story', 'Bug', 'Task', 'Sub-task', etc.
+    issue_type: 'Story', 'Bug', 'Task', 'Sub-task', etc. Matched case-insensitively
+    against the project's actual issue types (JIRA requires the exact casing).
     Pass epic_link=None or component=None to omit those fields.
+    story_points sets the "Estimate" field shown in the JIRA UI.
     attachments: optional list of attachments added after creation. Each item is either:
       - a file path string, e.g. 'C:/tmp/screenshot.png'
       - a dict with keys 'file' (bytes/BytesIO) and 'filename' (str),
         e.g. {"file": image_bytes, "filename": "screenshot.png"}
     """
+    available_types = jira.project(project).issueTypes
+    matched_type = next((t.name for t in available_types if t.name.lower() == issue_type.lower()), None)
+    if not matched_type:
+        available = [t.name for t in available_types]
+        raise ValueError(f"Issue type '{issue_type}' not found in project '{project}'. Available: {available}")
+
     fields = {
         "project": project,
         "summary": summary,
         "description": description,
-        "issuetype": {"name": issue_type},
+        "issuetype": {"name": matched_type},
     }
     if epic_link:
         fields["customfield_10006"] = epic_link
     if component:
         fields["components"] = [{"name": component}]
+    if story_points is not None:
+        fields[STORY_POINTS_FIELD] = story_points
     new_issue = jira.create_issue(fields=fields)
     print(f"Created {new_issue.key}: {summary}")
     if attachments:

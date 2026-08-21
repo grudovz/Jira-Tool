@@ -1,6 +1,3 @@
-import pyautogui
-import keyboard
-import time
 from jira_client import get_issue, update_issue, create_issue, attach_file, JIRA_URL
 
 # --- Macros go here ---

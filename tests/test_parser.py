@@ -1,69 +1,84 @@
 import pytest
-from story_parser import parse_story_text
+from story_parser import parse_issue
 
 
-def test_extracts_labelled_title():
-    result = parse_story_text("Title: Fix login bug\nDescription: Users cannot log in")
-    assert result["title"] == "Fix login bug"
+def test_summary_is_first_line():
+    result = parse_issue("Fix login bug\nissue: Bug")
+    assert result["summary"] == "Fix login bug"
 
 
-def test_extracts_summary_label_as_title():
-    result = parse_story_text("Summary: Reset password flow")
-    assert result["title"] == "Reset password flow"
+def test_full_example_with_all_fields():
+    text = (
+        "Fix login bug\n"
+        "issue: Bug\n"
+        "epic: LPDA-1777\n"
+        "component: Service center\n"
+        "points: 4\n"
+        "Users cannot log in when their session expires.\n"
+        "This happens on both mobile and desktop."
+    )
+    result = parse_issue(text)
+    assert result["summary"] == "Fix login bug"
+    assert result["issue_type"] == "Bug"
+    assert result["epic_link"] == "LPDA-1777"
+    assert result["component"] == "Service center"
+    assert result["story_points"] == 4
+    assert result["description"] == (
+        "Users cannot log in when their session expires.\nThis happens on both mobile and desktop."
+    )
 
 
-def test_falls_back_to_first_line_when_no_label():
-    result = parse_story_text("Fix login bug\nSome description text")
-    assert result["title"] == "Fix login bug"
+def test_labels_are_case_insensitive():
+    text = "Fix login bug\nIssue: Bug\nEPIC: LPDA-1777"
+    result = parse_issue(text)
+    assert result["issue_type"] == "Bug"
+    assert result["epic_link"] == "LPDA-1777"
 
 
-def test_extracts_description():
-    result = parse_story_text("Title: X\nDescription: Users need to reset their password")
-    assert result["description"] == "Users need to reset their password"
-
-
-def test_extracts_acceptance_criteria():
-    text = "Title: X\nDescription: Desc\nAcceptance Criteria:\n- Given a logged in user\n- When they click reset"
-    result = parse_story_text(text)
-    assert result["acceptance_criteria"] is not None
-    assert "Given" in result["acceptance_criteria"]
-
-
-def test_extracts_ac_short_label():
-    text = "Title: X\nAC:\n- User sees confirmation"
-    result = parse_story_text(text)
-    assert result["acceptance_criteria"] is not None
-
-
-def test_extracts_story_points():
-    result = parse_story_text("Title: X\nStory Points: 5")
-    assert result["story_points"] == 5
-
-
-def test_extracts_story_points_short_label():
-    result = parse_story_text("Title: X\nSP: 3")
-    assert result["story_points"] == 3
-
-
-def test_extracts_components():
-    result = parse_story_text("Title: X\nComponent: Service center, Auth")
-    assert result["components"] == ["Service center", "Auth"]
-
-
-def test_returns_none_for_missing_fields():
-    result = parse_story_text("Just a plain sentence with no labels")
-    assert result["description"] is None
-    assert result["acceptance_criteria"] is None
+def test_missing_fields_return_none():
+    text = "Fix login bug\ncomponent: Service center\nDescription text here"
+    result = parse_issue(text)
+    assert result["issue_type"] is None
+    assert result["epic_link"] is None
     assert result["story_points"] is None
-    assert result["components"] is None
+    assert result["component"] == "Service center"
+    assert result["description"] == "Description text here"
+
+
+def test_description_immediately_after_summary_when_no_fields():
+    result = parse_issue("Fix login bug\nUsers cannot log in.")
+    assert result["summary"] == "Fix login bug"
+    assert result["description"] == "Users cannot log in."
+    assert result["issue_type"] is None
+
+
+def test_summary_only_no_description():
+    result = parse_issue("Fix login bug")
+    assert result["summary"] == "Fix login bug"
+    assert result["description"] is None
+
+
+def test_story_points_extracts_digits():
+    result = parse_issue("Fix login bug\npoints: 8\nDesc")
+    assert result["story_points"] == 8
+
+
+def test_description_preserves_internal_blank_lines():
+    text = "Fix login bug\nissue: Bug\nFirst paragraph.\n\nSecond paragraph."
+    result = parse_issue(text)
+    assert result["description"] == "First paragraph.\n\nSecond paragraph."
 
 
 def test_empty_input_returns_all_none():
-    result = parse_story_text("")
-    assert result["title"] is None
+    result = parse_issue("")
+    assert result["summary"] is None
     assert result["description"] is None
+    assert result["issue_type"] is None
+    assert result["epic_link"] is None
+    assert result["component"] is None
+    assert result["story_points"] is None
 
 
 def test_whitespace_only_input():
-    result = parse_story_text("   \n\n   ")
-    assert result["title"] is None
+    result = parse_issue("   \n\n   ")
+    assert result["summary"] is None
