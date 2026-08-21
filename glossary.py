@@ -6,7 +6,7 @@ English instead, with certain domain terms swapped for their German
 equivalents (the terms actually used in the target system) before
 parsing. Matching on the English term is case-insensitive and only
 matches whole words; the German replacement is inserted exactly as
-defined below, regardless of the matched word's casing.
+defined below, regardless of the matched word's casing..
 
 Edit GLOSSARY to add, change, or remove pairs — no other code changes
 needed. Format: {"<english term>": "<german replacement>"}.
