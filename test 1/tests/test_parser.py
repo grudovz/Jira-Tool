@@ -35,6 +35,21 @@ def test_labels_are_case_insensitive():
     assert result["epic_link"] == "LPDA-1777"
 
 
+def test_feature_is_accepted_as_epic_alias():
+    text = "Fix login bug\nfeature: Israel\npoints: 1\nDescription text here"
+    result = parse_issue(text)
+    assert result["epic_link"] == "Israel"
+    assert result["story_points"] == 1
+    assert result["description"] == "Description text here"
+
+
+def test_feature_word_in_prose_is_not_treated_as_a_field():
+    result = parse_issue("Improve logo on the documents feature\nDescription text here")
+    assert result["summary"] == "Improve logo on the documents feature"
+    assert result["epic_link"] is None
+    assert result["description"] == "Description text here"
+
+
 def test_missing_fields_return_none():
     text = "Fix login bug\ncomponent: Service center\nDescription text here"
     result = parse_issue(text)

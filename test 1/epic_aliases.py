@@ -1,12 +1,13 @@
 """
-Alias lookup for the `epic:` field line in pasted issue text.
+Alias lookup for the `epic:` field line in pasted issue text (`feature:` is
+also accepted, since story_parser.py treats it as an alias for the same field).
 
 Typing exact epic keys (e.g. LPDA-2149) is error-prone via dictation, so
 the user can dictate a short, memorable epic name instead (e.g. "mail
 service") and have it resolved to the real key before parsing. Only the
-value of the first `epic:` field line is resolved — text elsewhere in the
-pasted issue (summary, description) is left untouched, since the same
-words could legitimately appear there as prose.
+value of the first `epic:`/`feature:` field line is resolved — text
+elsewhere in the pasted issue (summary, description) is left untouched,
+since the same words could legitimately appear there as prose.
 
 Edit EPIC_ALIASES to add, change, or remove pairs — no other code changes
 needed. Format: {"<name>": "<epic key>"}. Matching is exact (whole value,
@@ -22,7 +23,7 @@ EPIC_ALIASES = {
 
 _LOOKUP = {name.strip().casefold(): key for name, key in EPIC_ALIASES.items()}
 
-_EPIC_LINE = re.compile(r"^(\s*epic\s*:\s*)(.*)$", re.IGNORECASE | re.MULTILINE)
+_EPIC_LINE = re.compile(r"^(\s*(?:epic|feature)\s*:\s*)(.*)$", re.IGNORECASE | re.MULTILINE)
 
 
 def resolve_epic_alias(text: str) -> str:

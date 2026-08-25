@@ -15,6 +15,13 @@ def test_matching_is_case_insensitive():
     assert "EPIC: LPDA-2149" in result
 
 
+def test_feature_label_is_also_resolved():
+    text = "Fix login bug\nfeature: Israel\nDescription text."
+    result = resolve_epic_alias(text)
+    assert "feature: LPDA-1777" in result
+    assert "Israel" not in result
+
+
 def test_unknown_value_is_left_unchanged():
     text = "Fix login bug\nepic: LPDA-9999\nDescription text."
     result = resolve_epic_alias(text)

@@ -2,10 +2,10 @@
 Parser for pasted issue text in a fixed, dictation-friendly layout:
 
     <summary>
-    issue: <value>       (optional)
-    epic: <value>        (optional)
-    component: <value>   (optional)
-    points: <value>       (optional)
+    issue: <value>          (optional)
+    epic: <value>           (optional, "feature:" is also accepted)
+    component: <value>      (optional)
+    points: <value>         (optional)
     <description — everything else, may span multiple lines>
 
 The first line is always the summary. Any field lines must come immediately
@@ -21,7 +21,7 @@ import re
 
 _FIELD_PATTERNS = {
     "issue_type": re.compile(r"^issue\s*:\s*(.*)$", re.IGNORECASE),
-    "epic_link": re.compile(r"^epic\s*:\s*(.*)$", re.IGNORECASE),
+    "epic_link": re.compile(r"^(?:epic|feature)\s*:\s*(.*)$", re.IGNORECASE),
     "component": re.compile(r"^component\s*:\s*(.*)$", re.IGNORECASE),
     "story_points": re.compile(r"^points?\s*:\s*(.*)$", re.IGNORECASE),
 }

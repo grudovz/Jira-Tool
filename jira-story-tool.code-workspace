@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "jira-story-tool (Macros)",
+			"path": "."
+		},
+		{
+			"name": "trsc-client",
+			"path": "../BC/trsc.service-center-client"
+		},
+		{
+			"name": "trsc-gateway",
+			"path": "../BC/trsc.service-center-gateway"
+		}
+	],
+	"settings": {}
+}
