@@ -41,6 +41,7 @@ test 1/
 
 ## Architecture rules
 - `app.py` must never call the JIRA API directly — always via `jira_client.py`
+- Skills are mirrored in two locations — `.github/skills/<name>/SKILL.md` (Copilot) and `.claude/skills/<name>/SKILL.md` (Claude Code) — and must stay byte-identical. Whenever a skill is created or edited in one location, apply the exact same change to the other in the same commit.
 - `story_parser.py` must remain free of network calls and external dependencies
 
 ## Related projects
