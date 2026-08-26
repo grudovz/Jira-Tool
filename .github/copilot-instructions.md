@@ -11,6 +11,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/create` — [.github/skills/create/SKILL.md](../.github/skills/create/SKILL.md) — parse pasted issue text via `story_parser.py` and create a new JIRA issue via `jira_client.py`; asks for confirmation after parsing until the `AUTO_CREATE` flag in that file is flipped on
 - `/fetch` — [.github/skills/fetch/SKILL.md](../.github/skills/fetch/SKILL.md) — fetch and display a single JIRA issue's details by key (status shown as its internal mapped status only)
 - `/search` — [.github/skills/search/SKILL.md](../.github/skills/search/SKILL.md) — search issues by keyword/assignee/status/sprint and display a compact list (Key, Summary, Component, Status, Assignee); use `/fetch` on a specific key from the results for full detail
+- `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
 
 For code-grounded analysis, open [jira-story-tool.code-workspace](../jira-story-tool.code-workspace) (multi-root: this folder + `trsc-client` + `trsc-gateway`) instead of just this folder.
 
@@ -143,7 +144,8 @@ Applies to the chat+skills workflow (draft files, comments) and only to `app.py`
 3. **Done** — AI analysis of story quality now happens via the `/analyse` skill (the chat agent itself), grounded in real code and screenshots; the old in-app `ai_client.py` integration (Azure OpenAI/Ollama) was removed as redundant — see Architecture rules
 4. **On hold, not a target for suggestions** — `app.py` itself: leave as-is unless the user explicitly requests UI work
 4. **Later** — Code repository context for analysis (file tree + relevant file injection)
-5. **Later** — Delete issue, bulk operations, search/filter existing issues
+5. **Done** — search/filter existing issues (`/search`) and recurring bulk fixVersion tagging for release notes (`/releasenotes`)
+6. **Later** — Delete issue, other bulk operations beyond fixVersion tagging
 
 ## Environment variables (.env)
 ```
