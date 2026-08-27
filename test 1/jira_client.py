@@ -32,6 +32,7 @@ DEFAULT_PROJECT = "TRSC"
 DEFAULT_EPIC_LINK = "LPDA-3064"
 DEFAULT_COMPONENT = "Service center"
 STORY_POINTS_FIELD = "customfield_10002"  # "Estimate" in the JIRA UI
+DEFAULT_BOARD_ID = 19034  # "TravelScript - Sprint" board, used to resolve sprint names
 
 
 def get_issue(issue_key: str):
@@ -80,6 +81,50 @@ def assign_issue(issue_key: str, username: str):
     """Assign an issue to a user by their username/accountId."""
     jira.assign_issue(issue_key, username)
     print(f"Assigned {issue_key} to {username}")
+
+
+def delete_issue(issue_key: str):
+    """Permanently delete an issue. This cannot be undone."""
+    issue = jira.issue(issue_key)
+    issue.delete()
+    print(f"Deleted {issue_key}")
+
+
+def set_sprint(issue_keys: "str | list[str]", sprint_name: str, board_id: int = DEFAULT_BOARD_ID):
+    """Move one or more issues into a sprint, by sprint name (e.g. '26.4').
+    Looks up the sprint's id on board_id (defaults to DEFAULT_BOARD_ID) since
+    JIRA's API takes a sprint id rather than a name.
+    """
+    if isinstance(issue_keys, str):
+        issue_keys = [issue_keys]
+    # Only future/active sprints are considered: sprints() defaults to the oldest
+    # 50 sprints on the board, which would miss a currently-relevant sprint like "26.4"
+    # buried behind years of closed sprints.
+    sprints = jira.sprints(board_id, state="future,active")
+    match = next((s for s in sprints if s.name == sprint_name), None)
+    if not match:
+        raise ValueError(f"Sprint '{sprint_name}' not found on board {board_id}. Available: {[s.name for s in sprints]}")
+    jira.add_issues_to_sprint(match.id, issue_keys)
+    print(f"Moved {', '.join(issue_keys)} to sprint '{sprint_name}'")
+
+
+def move_to_bottom_of_backlog(issue_keys: "str | list[str]", project: str = DEFAULT_PROJECT):
+    """Move one or more issues to the backlog (out of any sprint) and rank them
+    last, after whatever issue currently sits at the bottom of the backlog.
+    Order among issue_keys is preserved (the last key ends up at the very bottom).
+    """
+    if isinstance(issue_keys, str):
+        issue_keys = [issue_keys]
+    jira.move_to_backlog(issue_keys)
+    jql = f"project = {project} AND sprint is EMPTY AND statusCategory != Done ORDER BY Rank ASC"
+    backlog = [i.key for i in search_issues(jql, max_results=2000) if i.key not in issue_keys]
+    if not backlog:
+        raise ValueError(f"No other backlog issues found in project '{project}' to rank against")
+    prev_issue = backlog[-1]
+    for key in issue_keys:
+        jira.rank(key, prev_issue=prev_issue)
+        prev_issue = key
+    print(f"Moved {', '.join(issue_keys)} to the bottom of the backlog")
 
 
 def get_my_open_issues(project: Optional[str] = None):

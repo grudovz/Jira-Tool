@@ -11,6 +11,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/create` — [.github/skills/create/SKILL.md](../.github/skills/create/SKILL.md) — parse pasted issue text via `story_parser.py` and create a new JIRA issue via `jira_client.py`; asks for confirmation after parsing until the `AUTO_CREATE` flag in that file is flipped on
 - `/fetch` — [.github/skills/fetch/SKILL.md](../.github/skills/fetch/SKILL.md) — fetch and display a single JIRA issue's details by key (status shown as its internal mapped status only)
 - `/search` — [.github/skills/search/SKILL.md](../.github/skills/search/SKILL.md) — search issues by keyword/assignee/status/sprint and display a compact list (Key, Summary, Component, Status, Assignee); use `/fetch` on a specific key from the results for full detail
+- `/fetchstaging` — [.github/skills/fetchstaging/SKILL.md](../.github/skills/fetchstaging/SKILL.md) — fetch every issue on staging in the current sprint and display each in full `/fetch`-style detail (description, comments, attachments); excludes ALP IL components by default, same as `/releasenotes`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
 
 For code-grounded analysis, open [jira-story-tool.code-workspace](../jira-story-tool.code-workspace) (multi-root: this folder + `trsc-client` + `trsc-gateway`) instead of just this folder.
@@ -112,16 +113,18 @@ This project's JIRA workflow statuses map to an internal status vocabulary the u
 |---|---|
 | To Do | to do |
 | New | blocked |
+| In Progress | in progress |
+| In Review | code review |
 | To Refine | on dev |
 | In Test | on staging |
 | Verify | test failed |
 | Done | approved |
-| In Progress | *(unmapped — ask the user before assuming)* |
-| In Review | *(unmapped — ask the user before assuming)* |
+
+This table's row order is also the canonical status order — whenever a skill displays multiple issues, arrange them by this sequence (not JQL/JIRA return order).
 
 Notes:
 - This is specific to the `TRSC` project's workflow as configured today — if a differently-configured JIRA project is ever used with this tool, re-confirm the mapping rather than assuming it carries over.
-- If a status is encountered that isn't in this table (including `In Progress`/`In Review` above), ask the user what it should map to and add it here — don't guess or invent a mapping.
+- If a status is encountered that isn't in this table, ask the user what it should map to and add it here — don't guess or invent a mapping.
 - **Where this applies**: only to `transition_issue(issue_key, transition_name)` in [jira_client.py](../test%201/jira_client.py) — confirmed that every transition's action name matches its destination status name exactly (e.g. the transition named `'To Refine'` moves the issue to status `'To Refine'`), so translate the internal name to its JIRA name from this table and pass that straight through as `transition_name`.
   - `create_issue` has no `status` parameter by design — JIRA assigns the initial status from the project's workflow scheme; it can't be set at creation time.
   - `update_issue`'s `**fields` catch-all would technically accept a `status=` kwarg, but it would fail — JIRA doesn't support status changes via the field-update endpoint, only via workflow transitions. Never pass `status` to `update_issue`; use `transition_issue` instead.

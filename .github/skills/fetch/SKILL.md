@@ -22,13 +22,13 @@ argument-hint: '[issue-key]'
    - **Condensed metadata line** — Issue Type, Status, Assignee, Epic Link, and Component on a single line, **values only, no field labels**, pipe-separated, in this fixed order:
      `<Issue Type> | <Status> | <Assignee> | <Epic Link> | <Component>`
      - Issue Type — `issue.fields.issuetype.name` (always present)
-     - Status — resolved *only* to its internal status using the mapping table in [copilot-instructions.md](../../copilot-instructions.md) (e.g. "on staging", not "In Test"); if `issue.fields.status.name` isn't in that table (currently `In Progress`/`In Review`), show the raw JIRA status name instead and flag it as unmapped — don't guess a mapping (always present)
+     - Status — resolved *only* to its internal status using the mapping table in [copilot-instructions.md](../../copilot-instructions.md) (e.g. "on staging", not "In Test"); if `issue.fields.status.name` isn't in that table, show the raw JIRA status name instead and flag it as unmapped — don't guess a mapping (always present)
      - Assignee — `issue.fields.assignee.displayName`, only if set
      - Epic Link — `issue.fields.customfield_10006`, only if set
      - Component(s) — `[c.name for c in issue.fields.components]` joined by comma, only if non-empty
      - If Assignee/Epic Link/Component is empty, drop that segment from the line entirely (per the empty-field rule below) rather than leaving a blank/placeholder — since this format has no labels, a dropped segment is positionally ambiguous, but that's an accepted tradeoff for a shorter, dictation-friendly line.
    - **Description** — `issue.fields.description`, in full, only if set
-   - **Comments** — `issue.fields.comment.comments`, each as author (`.author.displayName`) + body (`.body`), in chronological order, only if there's at least one
+   - **Comments** — `issue.fields.comment.comments`, each as author (`.author.displayName`) + body (`.body`), in reverse chronological order (newest first), only if there's at least one
    - **Attachments** — filenames from `issue.fields.attachment`, only if there's at least one
 4. **Do not show** Reporter, Priority, Created/Updated dates, or Story Points by default — only fetch and display these if the user explicitly asks for them in that request.
 5. **Omit empty fields entirely** — if a field has no value (no assignee, no epic link, no components, no description, no comments, no attachments), don't include that section/line (or segment, for the condensed metadata line) in the response at all. No placeholder text ("Unassigned", "No comments", "None", etc.) — the section is simply absent for that item. This applies to every field except Key, Summary, Issue Type, and Status, which are always present on a JIRA issue and always shown.

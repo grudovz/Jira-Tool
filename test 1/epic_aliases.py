@@ -19,6 +19,7 @@ import re
 EPIC_ALIASES = {
     "mail service": "LPDA-2149",
     "Israel": "LPDA-1777",
+    "Bistro Connect": "LPDA-3064",
 }
 
 _LOOKUP = {name.strip().casefold(): key for name, key in EPIC_ALIASES.items()}
