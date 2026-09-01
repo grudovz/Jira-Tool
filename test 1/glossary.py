@@ -15,6 +15,7 @@ import re
 
 GLOSSARY = {
     "German agent": "Berater",
+    "German form agent": "Reiseberater",
     "German email": "Versenden",
     "German offer transfer": "Angebot Ubertragen",
     "German reviews": "Hotelbewertung",

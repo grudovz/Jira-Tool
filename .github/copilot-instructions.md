@@ -71,20 +71,26 @@ Team conventions for what a well-formed story should contain, beyond what `story
 
 ### Description structure
 The description is generally split into these sections, in this order. **Background and Technical Details are optional; Acceptance Criteria is expected:**
-- **Background** *(optional)* — high-level business requirements, if necessary.
+- **Background** *(optional)* — high-level business requirements, if necessary. The traditional agile format ("As a user, I want X, so that Y"), when available, belongs here as part of Background rather than as its own section.
 - **Technical Details** *(optional)* — where to fetch data, data mapping to UI elements, requests to external systems (e.g. NLT), and similar implementation details. Present data mappings in JSON-like format.
 - **Acceptance Criteria** — the acceptance criteria, inclusive of UI changes (see conventions below).
 
-Section headings (`Background`, `Technical Details`, `Acceptance Criteria`) are written wrapped in JIRA's bold wiki markup — single asterisks, e.g. `*Background*` — not plain text, so they render bold in JIRA without a separate formatting step later. Applies wherever this content is assembled: `/draft`'s scratch file and any description text headed to `/create`/`update_issue`.
+Leave an additional blank line between each section — not just between a heading and its content, but between one section's content and the next section's heading.
+
+Section headings (`Background`, `Technical Details`, `Acceptance Criteria`, and the Acceptance Criteria sub-headings below) are written wrapped in JIRA's bold wiki markup — single asterisks, e.g. `*Background*` — not plain text, so they render bold in JIRA without a separate formatting step later. Applies wherever this content is assembled: `/draft`'s scratch file and any description text headed to `/create`/`update_issue`.
 
 ### Acceptance criteria conventions
 - **Included in the description** — not left as a separate field or omitted.
-- **Not split by functional vs. technical** — functional and technical requirements relevant to the same UI element, page, or functionality should generally be combined into the same criterion rather than separated.
-- **A simple list, not numbered — but doesn't have to be a list at all.** A single requirement can just be stated as-is; only use a list when there's more than one criterion.
+- **Split by kind, each in its own sub-section** — Functional Requirements, Error Handling, and Technical Requirements (only the sub-sections that actually apply) should each be broken out separately within Acceptance Criteria, rather than combined into a single criterion per UI element.
+- **One requirement per bullet point/sentence** — each distinct requirement within a sub-section gets its own bullet (not numbered) or sentence; never combine more than one requirement into the same line.
+- **Language should be simple and direct.**
 
 ### Terminology
 Known application/system names, so they aren't mistaken for typos or dictation duplication during analysis:
 - **Bistro Connect** — one of the applications this team supports.
+
+### Notification types
+The application has four notification types: **success**, **info**, **warning**, **error**. When a story specifies feedback shown to the user (e.g. on save, on send success/failure), reference one of these rather than inventing different notification vocabulary — and check the "Feedback provided to the user" point of the Completeness lens below against this list.
 
 ### Completeness lens (used by `/analyse`)
 When analysing a story or requirements, consider whether the following have been addressed:

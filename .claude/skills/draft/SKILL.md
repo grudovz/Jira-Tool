@@ -18,6 +18,8 @@ Pick exactly one, in this priority:
 
 Apply the [Story Writing Conventions](../../copilot-instructions.md#story-writing-conventions) when assembling the content (e.g. make sure acceptance criteria are included in the description) — but never invent details the source didn't provide; if a convention can't be satisfied from what's there, flag the gap in your reply instead of fabricating content. Per [Code-grounding scope](../../copilot-instructions.md#story-writing-conventions), keep any Technical Details at the business/data level (external systems, data fetched, mapping to UI elements) — never file paths, function/class names, or other implementation-level references pulled from code.
 
+Any formatting applied to the text (bold section headings, bullet lists, etc.) must use JIRA wiki markup syntax (e.g. `*bold*`, `-` bullets), not Markdown — this file's content is meant to transfer straight into a JIRA description later, so it must already be formatted the way JIRA itself renders it.
+
 ## Procedure
 1. Resolve the source content as above.
 2. Write it to `test 1/drafts/item.md` (fixed filename — this file is reused for whatever story is currently being worked on, not per-issue). Overwrite any existing contents.
