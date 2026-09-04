@@ -31,11 +31,13 @@ Applies whenever a message that posts a JIRA comment or updates an issue's descr
 test 1/
   jira_client.py      — JIRA API wrapper, do not refactor without asking.
   story_parser.py     — Rule-based text parser. No LLM dependency. Pure functions only.
+  bug_parser.py       — Rule-based parser/formatter for bug report descriptions. No LLM dependency. Pure functions only.
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   tests/
-    test_parser.py    — Unit tests for story_parser.py
+    test_parser.py      — Unit tests for story_parser.py
+    test_bug_parser.py  — Unit tests for bug_parser.py
   main.py             — Legacy CLI entry point. Kept for reference.
   requirements.txt    — Pinned dependencies.
 ```
@@ -44,6 +46,7 @@ test 1/
 - `app.py` must never call the JIRA API directly — always via `jira_client.py`
 - Skills are mirrored in two locations — `.github/skills/<name>/SKILL.md` (Copilot) and `.claude/skills/<name>/SKILL.md` (Claude Code) — and must stay byte-identical. Whenever a skill is created or edited in one location, apply the exact same change to the other in the same commit.
 - `story_parser.py` must remain free of network calls and external dependencies
+- `bug_parser.py` must remain free of network calls and external dependencies
 
 ## Related projects
 `../ui-macros/` (sibling folder, not part of this workspace root) is a separate Windows desktop-automation project — unrelated codebase and purpose. It used to keep a mouse-coordinate probe (`coord_finder.py`) here during early exploration; that file and the `pyautogui`/`keyboard`/`pygetwindow`/`opencv-python`/`Pillow` dependencies it needed have moved there. Don't factor that project's concerns into this one.
@@ -60,7 +63,7 @@ points: <value>      (optional)
 ```
 Rules:
 1. **Line 1 is always the summary** — whatever's on the first non-empty line, no matter its content. Blank → `summary` is `None`.
-2. **Field lines must come immediately after the summary**, each its own line as `label: value` (case-insensitive, flexible spacing — `Issue:`, `issue :`, `ISSUE:` all match). Recognized labels: `issue`, `epic`/`feature`, `component`, `points`/`point` (short, voice-dictation-friendly forms — the parsed dict keys are still `issue_type`/`epic_link`/`story_points` internally, only the input label text changed). `feature` is scoped to the field-line position only (start of line, immediately followed by `:`) — it does not affect the word "feature" appearing elsewhere in the summary/description, unlike a glossary.py substitution which would.
+2. **Field lines must come immediately after the summary**, each its own line as `label: value` (case-insensitive, flexible spacing — `Issue:`, `issue :`, `ISSUE:` all match). Recognized labels: `issue`, `epic`/`feature`, `component`, `points`/`point` (short, voice-dictation-friendly forms — the parsed dict keys are still `issue_type`/`epic_link`/`story_points` internally, only the input label text changed). `feature` is scoped to the field-line position only (start of line, immediately followed by `:`) — it does not affect the word "feature" appearing elsewhere in the summary/description.
 3. **Blank lines between the summary and field lines are skipped** and don't end the field block.
 4. **The first line that isn't a recognized field line ends the field block** — everything from there to the end of the text becomes `description`, verbatim. A field-like line appearing later, inside the description, is not parsed as a field — it's just description text.
 5. **Points** extracts the first run of digits found in that line's value (e.g. `points: ~3 or so` → `3`); no digits found → stays `None`.
@@ -91,6 +94,32 @@ Known application/system names, so they aren't mistaken for typos or dictation d
 
 ### Notification types
 The application has four notification types: **success**, **info**, **warning**, **error**. When a story specifies feedback shown to the user (e.g. on save, on send success/failure), reference one of these rather than inventing different notification vocabulary — and check the "Feedback provided to the user" point of the Completeness lens below against this list.
+
+### Bug Report Description Format (`bug_parser.py`)
+`/create` uses this whenever the parsed `issue_type` is `Bug`. The raw description (everything `story_parser.parse_issue` returns as `description`) is expected in this dictation-friendly shape:
+```
+Steps
+<step 1>
+<step 2>
+...
+<blank line>
+<expected result — everything after the blank line>
+```
+`bug_parser.parse_bug_description` transforms that into the final JIRA-formatted description:
+```
+Tested in version: 1.8.0
+
+*Steps*
+
+1) <step 1>
+2) <step 2>
+
+*Expected result:*
+
+<expected result>
+```
+- `1.8.0` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
+- If the raw description doesn't match the expected `Steps`/blank-line/expected-result shape, `parse_bug_description` returns `None` and `/create` leaves the description untouched, flagging this to the user rather than guessing.
 
 ### Completeness lens (used by `/analyse`)
 When analysing a story or requirements, consider whether the following have been addressed:

@@ -18,7 +18,7 @@ Pick exactly one, in this priority:
 
 Apply the [Story Writing Conventions](../../copilot-instructions.md#story-writing-conventions) when assembling the content (e.g. make sure acceptance criteria are included in the description) — but never invent details the source didn't provide; if a convention can't be satisfied from what's there, flag the gap in your reply instead of fabricating content. Per [Code-grounding scope](../../copilot-instructions.md#story-writing-conventions), keep any Technical Details at the business/data level (external systems, data fetched, mapping to UI elements) — never file paths, function/class names, or other implementation-level references pulled from code.
 
-Any formatting applied to the text (bold section headings, bullet lists, etc.) must use JIRA wiki markup syntax (e.g. `*bold*`, `-` bullets), not Markdown — this file's content is meant to transfer straight into a JIRA description later, so it must already be formatted the way JIRA itself renders it.
+Any formatting applied to the text (bold section headings, bullet lists, etc.) must use JIRA wiki markup syntax (e.g. `*bold*`, `* item` bullets — not `-`, which JIRA renders as strikethrough), not Markdown — this file's content is meant to transfer straight into a JIRA description later, so it must already be formatted the way JIRA itself renders it.
 
 ## Procedure
 1. Resolve the source content as above.
@@ -27,5 +27,5 @@ Any formatting applied to the text (bold section headings, bullet lists, etc.) m
 4. Tell the user the file is ready to open/dictate over. Pushing its contents into a JIRA issue's description is a separate, explicit step this skill doesn't do automatically — say so, so they know to ask for that when ready (e.g. "update the issue description with item.md").
 
 ## Notes
-- Do not touch `jira_client.py`, `story_parser.py`, `coord_finder.py`, or `glossary.py` — this skill doesn't call any of them.
+- Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — this skill doesn't call any of them.
 - `test 1/drafts/` is gitignored — scratch only.
