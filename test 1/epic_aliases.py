@@ -19,6 +19,7 @@ import re
 EPIC_ALIASES = {
     "mail service": "LPDA-2149",
     "Israel": "LPDA-1777",
+    "ALP IL": "LPDA-1777",
     "Bistro Connect": "LPDA-3064",
 }
 

@@ -38,6 +38,7 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    - **Comments** — `issue.fields.comment.comments`, each as author + body, reverse chronological order (newest first), only if any
    - **Attachments** — filenames from `issue.fields.attachment`, only if any
    - Omit empty fields/segments/sections entirely — no placeholder text, same rule as `/fetch`
+   - Description and comment bodies are JIRA wiki markup, not Markdown — convert each through `jira_markup.to_markdown()` (see [jira_markup.py](../../../test%201/jira_markup.py)) before displaying, and render the result as real Markdown (bold, bullet lists, links) directly in the chat response. Never show the raw JIRA markup literally and never wrap it in a code fence.
 
 ## Notes
 - Read-only — only ever calls `search_issues`; never updates, comments on, or transitions any issue.
