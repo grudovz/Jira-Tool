@@ -13,6 +13,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/search` — [.github/skills/search/SKILL.md](../.github/skills/search/SKILL.md) — search issues by keyword/assignee/status/sprint and display a compact list (Key, Summary, Component, Status, Assignee); use `/fetch` on a specific key from the results for full detail
 - `/fetchstaging` — [.github/skills/fetchstaging/SKILL.md](../.github/skills/fetchstaging/SKILL.md) — fetch every issue on staging in the current sprint and display each in full `/fetch`-style detail (description, comments, attachments); excludes ALP IL components by default, same as `/releasenotes`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
+- `/prototype` — [.github/skills/prototype/SKILL.md](../.github/skills/prototype/SKILL.md) — build a static HTML/CSS UI prototype for a story, grounded in the real `trsc-client` component source (classes/tokens/icons) rather than invented styling; saved to `test 1/drafts/mockups/`; attaching the raw `.html` to a JIRA issue is a separate, explicit step
 
 For code-grounded analysis, open [jira-story-tool.code-workspace](../jira-story-tool.code-workspace) (multi-root: this folder + `trsc-client` + `trsc-gateway`) instead of just this folder.
 
@@ -34,6 +35,7 @@ test 1/
   bug_parser.py       — Rule-based parser/formatter for bug report descriptions. No LLM dependency. Pure functions only.
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
+    mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   tests/
     test_parser.py      — Unit tests for story_parser.py
@@ -73,8 +75,9 @@ Rules:
 Team conventions for what a well-formed story should contain, beyond what `story_parser.py`/JIRA structurally require. Both `/analyse` (checks input against these) and `/draft` (applies them when assembling content) reference this same list — it's the single source of truth for both skills; add new conventions here rather than duplicating them into either skill file.
 
 ### Description structure
-The description is generally split into these sections, in this order. **Background and Technical Details are optional; Acceptance Criteria is expected:**
+The description is generally split into these sections, in this order. **Background, Design, and Technical Details are optional; Acceptance Criteria is expected:**
 - **Background** *(optional)* — high-level business requirements, if necessary. The traditional agile format ("As a user, I want X, so that Y"), when available, belongs here as part of Background rather than as its own section.
+- **Design** *(optional)* — when a design file (e.g. an Adobe XD share link) exists for the story, link it here (JIRA link markup: `[label|url]`) rather than folding it into Background or Technical Details. Point the developer at the design for the exact UI copy/text and layout instead of transcribing every string into the description; if a specific state shown in the design is referenced elsewhere in the description (e.g. an Acceptance Criteria bullet), name that state as labelled in the design (e.g. "the design's 'Success state'") so it's unambiguous which artboard to check. If a `/prototype`-built HTML mockup has been attached to the issue instead of (or alongside) an XD link, name the attached filename here too, so the developer knows which attachment to open.
 - **Technical Details** *(optional)* — where to fetch data, data mapping to UI elements, requests to external systems (e.g. NLT), and similar implementation details. Present data mappings in JSON-like format.
 - **Acceptance Criteria** — the acceptance criteria, inclusive of UI changes (see conventions below).
 
