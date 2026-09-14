@@ -29,7 +29,7 @@ jira = get_jira_client()
 
 # --- Defaults for new issues ---
 DEFAULT_PROJECT = "TRSC"
-DEFAULT_EPIC_LINK = "LPDA-3064"
+DEFAULT_EPIC_LINK = "LPDA-3255"
 DEFAULT_COMPONENT = "Service center"
 STORY_POINTS_FIELD = "customfield_10002"  # "Estimate" in the JIRA UI
 DEFAULT_BOARD_ID = 19034  # "TravelScript - Sprint" board, used to resolve sprint names
