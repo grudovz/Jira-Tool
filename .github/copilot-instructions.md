@@ -98,6 +98,9 @@ Known application/system names, so they aren't mistaken for typos or dictation d
 ### Notification types
 The application has four notification types: **success**, **info**, **warning**, **error**. When a story specifies feedback shown to the user (e.g. on save, on send success/failure), reference one of these rather than inventing different notification vocabulary — and check the "Feedback provided to the user" point of the Completeness lens below against this list.
 
+### Guide tour conventions
+When a story adds a guided-tour step for a new feature/addition, add it both as a new standalone sub-guide (so it's shown to every agent, including those who already completed the existing tour) and as a step within the existing relevant guided tour (for agents going through it for the first time) — both following the same "shown once" behaviour as the rest of these tours. This is the pattern used for the YouTube feature and for Bosys integration: Onboarding wizard updates for Angebot page.
+
 ### Bug Report Description Format (`bug_parser.py`)
 `/create` uses this whenever the parsed `issue_type` is `Bug`. The raw description (everything `story_parser.parse_issue` returns as `description`) is expected in this dictation-friendly shape:
 ```
@@ -110,7 +113,7 @@ Steps
 ```
 `bug_parser.parse_bug_description` transforms that into the final JIRA-formatted description:
 ```
-Tested in version: 1.8.0
+Tested in version: 1.8.2
 
 *Steps*
 
@@ -121,7 +124,7 @@ Tested in version: 1.8.0
 
 <expected result>
 ```
-- `1.8.0` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
+- `1.8.2` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
 - If the raw description doesn't match the expected `Steps`/blank-line/expected-result shape, `parse_bug_description` returns `None` and `/create` leaves the description untouched, flagging this to the user rather than guessing.
 
 ### Completeness lens (used by `/analyse`)

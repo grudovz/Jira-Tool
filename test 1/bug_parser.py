@@ -22,7 +22,7 @@ same "don't invent, signal absence" philosophy as story_parser.parse_issue.
 """
 import re
 
-DEFAULT_APP_VERSION = "1.8.0"  # current application version — update when the user gives a new one
+DEFAULT_APP_VERSION = "1.8.2"  # current application version — update when the user gives a new one
 
 _STEPS_HEADER = re.compile(r"^steps\s*:?\s*$", re.IGNORECASE)
 

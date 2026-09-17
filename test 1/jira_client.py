@@ -77,6 +77,12 @@ def add_comment(issue_key: str, comment: str):
     print(f"Comment added to {issue_key}")
 
 
+def delete_comment(issue_key: str, comment_id: str):
+    """Delete a comment from an issue by its comment id."""
+    jira.comment(issue_key, comment_id).delete()
+    print(f"Deleted comment {comment_id} from {issue_key}")
+
+
 def assign_issue(issue_key: str, username: str):
     """Assign an issue to a user by their username/accountId."""
     jira.assign_issue(issue_key, username)

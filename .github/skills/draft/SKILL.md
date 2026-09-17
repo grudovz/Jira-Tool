@@ -25,6 +25,7 @@ Any formatting applied to the text (bold section headings, bullet lists, etc.) m
 2. Write it to `test 1/drafts/item.md` (fixed filename — this file is reused for whatever story is currently being worked on, not per-issue). Overwrite any existing contents.
 3. If `item.md` already existed with different content, mention that it was overwritten, in case the user had unfinished edits there.
 4. Tell the user the file is ready to open/dictate over. Pushing its contents into a JIRA issue's description is a separate, explicit step this skill doesn't do automatically — say so, so they know to ask for that when ready (e.g. "update the issue description with item.md").
+5. Run `/analyse` against the just-drafted content and share its Suggestions in chat — catches gaps before the user starts editing/dictating over the file.
 
 ## Notes
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — this skill doesn't call any of them.
