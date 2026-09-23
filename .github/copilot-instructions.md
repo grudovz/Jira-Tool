@@ -12,6 +12,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/fetch` — [.github/skills/fetch/SKILL.md](../.github/skills/fetch/SKILL.md) — fetch and display a single JIRA issue's details by key (status shown as its internal mapped status only)
 - `/search` — [.github/skills/search/SKILL.md](../.github/skills/search/SKILL.md) — search issues by keyword/assignee/status/sprint and display a compact list (Key, Summary, Component, Status, Assignee); use `/fetch` on a specific key from the results for full detail
 - `/fetchstaging` — [.github/skills/fetchstaging/SKILL.md](../.github/skills/fetchstaging/SKILL.md) — fetch every issue on staging in the current sprint and display each in full `/fetch`-style detail (description, comments, attachments); excludes ALP IL components by default, same as `/releasenotes`
+- `/fetchbacklog` — [.github/skills/fetchbacklog/SKILL.md](../.github/skills/fetchbacklog/SKILL.md) — fetch every new backlog item created since the skill was last run, displayed in full `/fetch`-style detail; no ALP IL exclusion; tracks last-run time via `test 1/fetchbacklog_state.json`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
 - `/prototype` — [.github/skills/prototype/SKILL.md](../.github/skills/prototype/SKILL.md) — build a static HTML/CSS UI prototype for a story, grounded in the real `trsc-client` component source (classes/tokens/icons) rather than invented styling; saved to `test 1/drafts/mockups/`; attaching the raw `.html` to a JIRA issue is a separate, explicit step
 
@@ -33,6 +34,11 @@ test 1/
   jira_client.py      — JIRA API wrapper, do not refactor without asking.
   story_parser.py     — Rule-based text parser. No LLM dependency. Pure functions only.
   bug_parser.py       — Rule-based parser/formatter for bug report descriptions. No LLM dependency. Pure functions only.
+  capitalization.py   — Rule-based paragraph capitalization. No LLM dependency. Pure functions only.
+  heading_formatting.py — Bolds known description section headings per paragraph. No LLM dependency. Pure functions only.
+  epic_aliases.py     — EPIC_ALIASES dict + resolve_epic_alias; dict is the editable exception, function is off-limits.
+  create_helper.py    — Thin wrapper chaining /create's parse steps into one prepare_issue() call.
+  jira_markup.py      — Converts JIRA wiki markup to Markdown for display.
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
     mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.

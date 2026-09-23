@@ -51,6 +51,7 @@ argument-hint: '[comment text]'
 
 ## Notes
 - This mirrors the manual steps already used in this project for TRSC-2898 comments/description updates.
-- Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing `add_comment`/`transition_issue`/`attach_file` functions and the module-level `jira` client instance it already exports.
+- **Correcting a mistaken comment** (wrong issue key, wrong text): use the existing `delete_comment(issue_key, comment_id)` function in [jira_client.py](../../../test%201/jira_client.py) to remove it, then post the corrected comment fresh via step 4 (with its own mention/attachment/transition handling re-run for the correct issue) — don't try to edit a posted comment in place. Get the comment's id from `get_issue(issue_key).fields.comment.comments` if it isn't already known.
+- Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing `add_comment`/`transition_issue`/`attach_file`/`delete_comment` functions and the module-level `jira` client instance it already exports.
 - Mention resolution only ever *substitutes text the user already asked for* (a name they typed as `@name`, or the `@ticket` token) — it never adds a mention the user didn't type, and ambiguous/unresolved names are reported, never guessed.
 - The transition checks are judgment-based (this skill is read and executed by an LLM, not a strict regex), same as resolving the issue key or deciding when `/comment` was invoked — favor precision over recall: skip the transition on anything genuinely ambiguous rather than changing a ticket's status incorrectly.

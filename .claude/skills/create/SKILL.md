@@ -16,7 +16,7 @@ argument-hint: '[pasted issue text]'
 
 ## Procedure
 1. **Resolve the raw text**: everything the user pasted/wrote after `/create` (or in the message that triggered this skill). If nothing was pasted, ask for the text to parse.
-2. **Parse and prepare the fields** by running the raw text through `prepare_issue` in [create_helper.py](../../../test%201/create_helper.py) — it chains the same existing functions this skill always used (`resolve_epic_alias`, `parse_issue`, `capitalize_paragraphs`, and, for bugs, `parse_bug_description`) into one call and returns the fields as JSON, plus a `bug_format_applied` flag (`true` = reformatted, `false` = didn't match the expected shape and was left as parsed, `null` = not a bug). Do not modify `create_helper.py`'s logic beyond what's needed to keep it a thin wrapper — it must keep calling the existing functions unchanged, not reimplement their behavior.
+2. **Parse and prepare the fields** by running the raw text through `prepare_issue` in [create_helper.py](../../../test%201/create_helper.py) — it chains the same existing functions this skill always used (`resolve_epic_alias`, `parse_issue`, `capitalize_paragraphs`, `bold_headings`, and, for bugs, `parse_bug_description`) into one call and returns the fields as JSON, plus a `bug_format_applied` flag (`true` = reformatted, `false` = didn't match the expected shape and was left as parsed, `null` = not a bug). `bold_headings` (in [heading_formatting.py](../../../test%201/heading_formatting.py)) wraps a recognised section heading (Background, Design, Technical Details, Acceptance Criteria/AC) in JIRA bold markup when it starts its own paragraph, per the Description structure convention in copilot-instructions.md. Do not modify `create_helper.py`'s logic beyond what's needed to keep it a thin wrapper — it must keep calling the existing functions unchanged, not reimplement their behavior.
    ```powershell
    cd "test 1"
    .\.venv\Scripts\python.exe create_helper.py "<path to a temp file containing the raw text>"
@@ -37,6 +37,7 @@ argument-hint: '[pasted issue text]'
 
 ## Notes
 - Never invent or silently correct parsed field values — if something looks wrong, surface it in step 3 and let the user decide, don't fix it silently.
+- **Exception**: don't flag the description's first line repeating the summary verbatim. The user does this deliberately for simple stories — it's a known convention, not a duplication artifact.
 - Do not touch `jira_client.py`, `story_parser.py`, `bug_parser.py`, or `coord_finder.py` — only call their existing functions.
 - `create_helper.py` is a thin wrapper around those same functions — it exists only to bundle the parse→capitalize→bug-format chain into one call. It's fine to touch, but keep it a wrapper: it must not reimplement or alter the behavior of `parse_issue`, `capitalize_paragraphs`, or `parse_bug_description`.
 - `epic_aliases.py` is the exception: its `resolve_epic_alias` function is off-limits like the others, but the `EPIC_ALIASES` dict is meant to be edited directly for new epic name→key pairs.

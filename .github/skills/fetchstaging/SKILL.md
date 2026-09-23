@@ -32,7 +32,7 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    `search_issues` fetches full fields by default (no `fields=` restriction), so `description`, `comment`, and `attachment` are already present on each result — no per-issue re-fetch needed.
 2. **Zero matches** → say so plainly, not as an error.
 3. **Display each matched issue**, one after another, in the exact same structure and empty-field rules as `/fetch`:
-   - **Key, Summary** — `issue.key`, `issue.fields.summary` (always shown)
+   - **Key, Summary** — Key as a hyperlink (`[<KEY>](<JIRA_URL>/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), then `issue.fields.summary` (always shown)
    - **Condensed metadata line** — `<Issue Type> | <Status> | <Assignee> | <Epic Link> | <Component>`, values only, pipe-separated, same field sources as `/fetch` (Status will always read "on staging" here, since that's the filter)
    - **Description** — `issue.fields.description`, in full, only if set
    - **Comments** — `issue.fields.comment.comments`, each as author + body, reverse chronological order (newest first), only if any

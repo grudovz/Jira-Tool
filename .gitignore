@@ -22,3 +22,6 @@ drafts/
 
 # Screenshots supplied as context for the /analyse skill
 analysis-context/
+
+# Local run state for the /fetchbacklog skill (last-checked timestamp)
+fetchbacklog_state.json

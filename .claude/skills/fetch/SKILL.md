@@ -18,7 +18,7 @@ argument-hint: '[issue-key]'
    .\.venv\Scripts\python.exe -c "from jira_client import get_issue; i = get_issue('<KEY>'); ..."
    ```
 3. **Display in chat** (read the fields directly off the returned issue object — no invented values):
-   - **Key, Summary** — `issue.key`, `issue.fields.summary` (always shown — never empty)
+   - **Key, Summary** — Key as a hyperlink (`[<KEY>](<JIRA_URL>/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), then `issue.fields.summary` (always shown — never empty)
    - **Condensed metadata line** — Issue Type, Status, Assignee, Epic Link, and Component on a single line, **values only, no field labels**, pipe-separated, in this fixed order:
      `<Issue Type> | <Status> | <Assignee> | <Epic Link> | <Component>`
      - Issue Type — `issue.fields.issuetype.name` (always present)
