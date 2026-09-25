@@ -9,6 +9,7 @@ argument-hint: '[pasted requirements/story text or issue-key]'
 ## When to Use
 - The user pastes a draft story, or business/technical requirements, and asks for analysis/review/feedback — or types `/analyse`
 - Goal: produce grounded, structured feedback in chat, so the user can iterate with follow-up messages before anything is finalized — not a one-shot report, and not a file
+- In practice this is invoked as a subroutine at least as often as it's invoked directly — by `/draft` (step 3), and implicitly during ad-hoc collaborative story drafting (raw input → Background/AC in chat, per the flag-assumptions convention). Apply the same procedure and Completeness lens either way.
 
 ## Context sources
 1. **Session input** — the primary source: whatever draft story or requirements text the user pasted/wrote in this conversation (the most recent, unless they point at something earlier).
@@ -22,7 +23,7 @@ argument-hint: '[pasted requirements/story text or issue-key]'
 2. **Identify the feature/component** the input is about (used to search code and locate a screenshot folder).
 3. **Search the code** (if the multi-root workspace is open): check whether the requirement is feasible against the current architecture/data model, and note any technical limitation or dependency relevant to the story that it doesn't already address. Don't derive or report implementation-level guidance (specific files/functions/migrations to change). If the workspace isn't open (only the Macros folder is), just proceed without code-grounding — don't call this out, the user doesn't need to be told.
 4. **Check for screenshots** under `test 1/analysis-context/<feature>/current/` and `.../reference/`. View any found. If none exist, just proceed on code + text alone — don't call out the missing screenshots, the user doesn't need to be told.
-5. **Check against Story Writing Conventions** — flag gaps in required content only (e.g. no acceptance criteria in the description). Never flag the Background or Technical Details sections as missing — they're optional by convention, not gaps.
+5. **Check against Story Writing Conventions and the [Completeness lens](../../copilot-instructions.md#completeness-lens-used-by-analyse-and-by-any-ad-hoccollaborative-story-drafting)** — flag gaps in required content only (e.g. no acceptance criteria in the description), plus whatever the Completeness lens list surfaces (user flow/edge cases, discoverability, feedback to the user, data flow/missing-data fallbacks, component state, security). Never flag the Background or Technical Details sections as missing — they're optional by convention, not gaps.
 6. **Produce the analysis in chat as a single Suggestions section** — bundle suggested changes, missing information, and other remarks about the story together (clarity, completeness, and scope observations all fold into this one section rather than being split into separate headings), grounded in what the code/screenshots/conventions actually show. Code-grounded points belong here only when they affect feasibility or surface an unaddressed technical limitation/dependency (e.g. "NLT doesn't currently expose this field" or "the current screenshot shows Z, which doesn't match the reference design") — never as an implementation recommendation (e.g. don't say "extend function X in file Y" or "add a migration like Z").
 
 ## Notes
