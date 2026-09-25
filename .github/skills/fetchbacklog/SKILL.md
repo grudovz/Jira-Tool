@@ -1,6 +1,6 @@
 ---
 name: fetchbacklog
-description: 'Fetch every TRSC backlog item (sprint is EMPTY, not Done) created since the last time this skill was run, and display each in full /fetch-style detail (condensed metadata line, description, comments, attachments) via jira_client.py. No ALP IL exclusion. Tracks "last run" via a local timestamp file, auto-updated after each run. Use when the user asks what is new in the backlog since last check, or types /fetchbacklog or says "fetch backlog".'
+description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL backlog sprint, and not Done) created since the last time this skill was run, and display each in full /fetch-style detail (condensed metadata line, description, comments, attachments) via jira_client.py. No ALP IL exclusion. Tracks "last run" via a local timestamp file, auto-updated after each run. Use when the user asks what is new in the backlog since last check, or types /fetchbacklog or says "fetch backlog".'
 ---
 
 # Fetch New Backlog Items (Since Last Run)
@@ -21,9 +21,10 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, not Done) created 
 ## Procedure
 1. **Read the state file and build the JQL**, then run it via the existing `search_issues` function in [jira_client.py](../../../test%201/jira_client.py) — do not modify that file:
    ```
-   project = TRSC AND sprint is EMPTY AND statusCategory != Done AND created >= "<last_run>" ORDER BY created ASC
+   project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done AND created >= "<last_run>" ORDER BY created ASC
    ```
    (omit the `AND created >= "..."` clause entirely if the state file doesn't exist yet)
+   `sprint = 73312` is the "ALP IL backlog" sprint — ALP IL tickets are filed directly into this standing sprint instead of the empty backlog, so it must be included alongside `sprint is EMPTY` to catch new ALP IL items.
    ```powershell
    cd "test 1"
    .\.venv\Scripts\python.exe -c "
@@ -37,7 +38,7 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, not Done) created 
        with open(state_path) as f:
            last_run = json.load(f).get('last_run')
 
-   jql = 'project = TRSC AND sprint is EMPTY AND statusCategory != Done'
+   jql = 'project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done'
    if last_run:
        jql += f' AND created >= \"{last_run}\"'
    jql += ' ORDER BY created ASC'
@@ -64,5 +65,5 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, not Done) created 
 ## Notes
 - Read-only against JIRA — only ever calls `search_issues`; never updates, comments on, or transitions any issue. The only side effect is overwriting the local state file.
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function.
-- No ALP IL exclusion (unlike `/fetchstaging`/`/releasenotes`) — backlog triage covers everything.
+- No ALP IL exclusion (unlike `/fetchstaging`/`/releasenotes`) — backlog triage covers everything, and `sprint = 73312` ("ALP IL backlog") is explicitly included so ALP IL items filed directly into that standing sprint aren't missed.
 - `fetchbacklog_state.json` is gitignored — it's local run state, not project config.
