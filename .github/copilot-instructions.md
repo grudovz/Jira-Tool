@@ -28,6 +28,13 @@ Applies whenever a message that posts a JIRA comment or updates an issue's descr
 - Only applies to comment/update actions. `/create` already has its own explicit `attachments` parameter for issue creation, and `/draft` never touches JIRA — neither needs this rule.
 - No pasted image on the triggering message → nothing to do here, don't mention it.
 
+## Attachment caching for fetch skills
+Applies to `/fetch` and `/fetchbacklog` (not `/fetchstaging` — deliberately excluded, its results are typically many issues per run and this isn't worth the added JIRA calls/artifact-panel clutter there). For each issue displayed that has at least one attachment:
+- Download and cache them via `cache_attachments(issue)` in [attachment_helper.py](../test%201/attachment_helper.py) — pass the already-fetched `issue` object (from `get_issue`/`search_issues`), no extra JIRA round-trip needed. Returns a list of `{"filename", "path"}` dicts, skipping any file already cached locally from a previous run.
+- Register each cached file via `add_artifact_or_reference`: `type: 'file'`, `isArtifact: false` (it's cached external JIRA content, not something this session produced — a reference, not an artifact), `label: "<KEY> attachment: <filename>"`, `uri`/`link` set to the absolute `file://` path returned by the helper.
+- This is a clickable-link registration only — never attempt to inline-render the image in chat (Markdown image embeds render too small in this host; confirmed via direct comparison on TRSC-2497 that the clickable artifact link is the preferred mechanism).
+- No attachments on an issue → skip this entirely for that issue, don't mention it.
+
 ## Folder layout
 ```
 test 1/
@@ -38,11 +45,13 @@ test 1/
   heading_formatting.py — Bolds known description section headings per paragraph. No LLM dependency. Pure functions only.
   epic_aliases.py     — EPIC_ALIASES dict + resolve_epic_alias; dict is the editable exception, function is off-limits.
   create_helper.py    — Thin wrapper chaining /create's parse steps into one prepare_issue() call.
+  attachment_helper.py — Thin wrapper downloading an issue's attachments to attachment_cache/ for /fetch and /fetchbacklog.
   jira_markup.py      — Converts JIRA wiki markup to Markdown for display.
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
     mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
+  attachment_cache/  — Gitignored cache of downloaded JIRA attachments, keyed by issue; populated by attachment_helper.py for /fetch and /fetchbacklog.
   tests/
     test_parser.py      — Unit tests for story_parser.py
     test_bug_parser.py  — Unit tests for bug_parser.py

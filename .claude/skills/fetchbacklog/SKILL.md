@@ -61,9 +61,10 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
    - **Attachments** — filenames from `issue.fields.attachment`, only if any
    - Omit empty fields/segments/sections entirely — no placeholder text, same rule as `/fetch`
    - Description and comment bodies are JIRA wiki markup, not Markdown — convert each through `jira_markup.to_markdown()` (see [jira_markup.py](../../../test%201/jira_markup.py)) before displaying, and render the result as real Markdown (bold, bullet lists, links) directly in the chat response. Never show the raw JIRA markup literally and never wrap it in a code fence.
+4. **For each issue with attachments**, cache them locally and register each as a clickable link — see [Attachment caching for fetch skills](../../copilot-instructions.md#attachment-caching-for-fetch-skills).
 
 ## Notes
-- Read-only against JIRA — only ever calls `search_issues`; never updates, comments on, or transitions any issue. The only side effect is overwriting the local state file.
-- Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function.
+- Read-only against JIRA — only ever calls `search_issues`; never updates, comments on, or transitions any issue. Overwriting the local state file and downloading attachments to the local cache are the only side effects.
+- Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function. `attachment_helper.py` is fine to touch (see its own file), but keep it a thin wrapper.
 - No ALP IL exclusion (unlike `/fetchstaging`/`/releasenotes`) — backlog triage covers everything, and `sprint = 73312` ("ALP IL backlog") is explicitly included so ALP IL items filed directly into that standing sprint aren't missed.
 - `fetchbacklog_state.json` is gitignored — it's local run state, not project config.

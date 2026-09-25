@@ -25,3 +25,6 @@ analysis-context/
 
 # Local run state for the /fetchbacklog skill (last-checked timestamp)
 fetchbacklog_state.json
+
+# Local cache of downloaded JIRA attachments (/fetch, /fetchbacklog)
+attachment_cache/
