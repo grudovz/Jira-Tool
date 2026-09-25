@@ -1,6 +1,6 @@
 ---
 name: fetch
-description: 'Fetch and display the details of a single JIRA issue by key via jira_client.py. Use when the user asks to "fetch"/"retrieve"/"get" details for an issue, or types /fetch, giving a full key or shorthand digits.'
+description: 'Fetch and display the details of a single JIRA issue by key via jira_client.py. Use when the user asks to "fetch"/"retrieve"/"get" details for an issue, or types /fetch, giving a full key or shorthand digits. Also triggers on a bare issue key/number with no other wording at all (e.g. just "2942") — a deliberate shortcut for voice dictation.'
 argument-hint: '[issue-key]'
 ---
 
@@ -8,7 +8,8 @@ argument-hint: '[issue-key]'
 
 ## When to Use
 - The user asks to fetch/retrieve/get details for a specific issue, or types `/fetch`
-- A single, known issue key is given (full or shorthand) — for searching by keyword, assignee, or status instead of a specific key, that's a separate `/search` skill, not this one
+- **A bare issue key or shorthand digits with nothing else** (e.g. "2942", "TRSC-2942") — treat this alone as an implicit `/fetch` request, no "fetch"/"get"/"retrieve" wording needed. This is a deliberate shortcut for dictation — saying just the number should be enough.
+- A single, known issue key is given (full or shorthand) alongside other wording — for searching by keyword, assignee, or status instead of a specific key, that's a separate `/search` skill, not this one
 
 ## Procedure
 1. **Resolve the issue key**: accept a full key (e.g. `TRSC-2294`) or shorthand digits (e.g. `2294`, prefixed with `DEFAULT_PROJECT` from [jira_client.py](../../../test%201/jira_client.py) to form `TRSC-2294`). Never guess — ask if no key is given.

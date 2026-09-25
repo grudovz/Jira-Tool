@@ -133,8 +133,9 @@ Tested in version: 1.8.2
 - `1.8.2` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
 - If the raw description doesn't match the expected `Steps`/blank-line/expected-result shape, `parse_bug_description` returns `None` and `/create` leaves the description untouched, flagging this to the user rather than guessing.
 
-### Completeness lens (used by `/analyse`)
-When analysing a story or requirements, consider whether the following have been addressed:
+### Completeness lens (used by `/analyse`, and by any ad-hoc/collaborative story drafting)
+Apply this whenever drafting or analysing a story or requirements — not just when `/analyse` is explicitly invoked. When collaboratively drafting a story from raw input (see the flag-assumptions convention), run the draft through this list before presenting it, and fold any genuine gap found in alongside the other open questions/assumptions already being flagged — don't silently finalize a draft that has an unaddressed gap here.
+Consider whether the following have been addressed:
 - User flow, including error handling and edge cases
 - Discoverability of the feature
 - Feedback provided to the user, where applicable
@@ -152,6 +153,7 @@ Never use code to produce implementation-level recommendations — which files, 
 Notes:
 - When the user mentions a new convention, add it here as a bullet in the relevant subsection.
 - `/analyse` flags gaps against this list in its feedback — except missing optional sections (Background, Technical Details), which are never flagged since they're optional by design. `/draft` applies this list when assembling content but never invents details to satisfy it — a gap that can't be filled from the actual source should surface as feedback, not fabricated text.
+- Ad-hoc collaborative drafting (not through `/analyse`/`/draft`) applies the same list before presenting a draft, surfacing real gaps as open questions rather than fabricating an answer — same rule as `/draft`.
 
 ## JIRA status mapping (internal enum)
 This project's JIRA workflow statuses map to an internal status vocabulary the user thinks/talks in. Use this table whenever the user refers to an item by its internal status (e.g. "move this to on staging", "what's blocked right now"), and when reporting statuses back — translate JIRA's raw status name to the internal one so it matches how the user actually refers to it.
