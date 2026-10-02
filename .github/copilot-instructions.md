@@ -152,6 +152,7 @@ Consider whether the following have been addressed:
 - Data flow / data availability considerations — including what should happen when new data fields being introduced are partially or fully missing/null (e.g. hide the whole section, show partial data, fall back to something else?). Stories that introduce a new data-driven section/field often only describe the happy path and skip this — treat it as a gap to flag, not an edge case to skip.
 - Potential component state issues
 - Potential security issues arising from the requirements
+- Completeness of examples — when a trigger condition, request payload, or data mapping is specified via one representative example (a single direction of interaction, a single field/parameter), check whether that example generalizes to the full realistic range (other directions, additional/combined parameters) or whether it actually is the complete rule — don't let an illustrative example silently stand in for the general case.
 
 ### Code-grounding scope (used by `/analyse` and `/draft`)
 When the client/gateway code is available (multi-root workspace open), use it only to:

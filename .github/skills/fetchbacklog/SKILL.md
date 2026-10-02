@@ -1,6 +1,6 @@
 ---
 name: fetchbacklog
-description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL backlog sprint, and not Done) created since the last time this skill was run, and display each in full /fetch-style detail (condensed metadata line, description, comments, attachments) via jira_client.py. No ALP IL exclusion. Tracks "last run" via a local timestamp file, auto-updated after each run. Use when the user asks what is new in the backlog since last check, or types /fetchbacklog or says "fetch backlog".'
+description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL backlog sprint, and not Done) created since the last time this skill was run, excluding items you reported yourself, and display each in full /fetch-style detail (condensed metadata line, description, comments, attachments) via jira_client.py. No ALP IL exclusion. Tracks "last run" via a local timestamp file, auto-updated after each run. Use when the user asks what is new in the backlog since last check, or types /fetchbacklog or says "fetch backlog".'
 ---
 
 # Fetch New Backlog Items (Since Last Run)
@@ -21,10 +21,11 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
 ## Procedure
 1. **Read the state file and build the JQL**, then run it via the existing `search_issues` function in [jira_client.py](../../../test%201/jira_client.py) — do not modify that file:
    ```
-   project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done AND created >= "<last_run>" ORDER BY created ASC
+   project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done AND reporter != currentUser() AND created >= "<last_run>" ORDER BY created ASC
    ```
    (omit the `AND created >= "..."` clause entirely if the state file doesn't exist yet)
    `sprint = 73312` is the "ALP IL backlog" sprint — ALP IL tickets are filed directly into this standing sprint instead of the empty backlog, so it must be included alongside `sprint is EMPTY` to catch new ALP IL items.
+   `reporter != currentUser()` excludes items you reported yourself (whether filed directly in JIRA or via this tool's `/create`) — this digest is for surfacing what colleagues added, not your own items.
    ```powershell
    cd "test 1"
    .\.venv\Scripts\python.exe -c "
@@ -38,7 +39,7 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
        with open(state_path) as f:
            last_run = json.load(f).get('last_run')
 
-   jql = 'project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done'
+   jql = 'project = TRSC AND (sprint is EMPTY OR sprint = 73312) AND statusCategory != Done AND reporter != currentUser()'
    if last_run:
        jql += f' AND created >= \"{last_run}\"'
    jql += ' ORDER BY created ASC'
