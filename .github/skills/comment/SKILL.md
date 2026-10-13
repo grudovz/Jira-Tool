@@ -19,13 +19,13 @@ argument-hint: '[comment text]'
 3. **Resolve `@name` mentions** — the user has given standing approval to do this automatically, without asking per-comment:
    - Find every `@name` token in the comment text (e.g. `@al`, `@aleksis`).
    - **Special case — `@ticket`/`@Ticket` (case-insensitive, exact token match)**: resolves to the current assignee of the issue being commented on (the key resolved in step 1), not a name search. Fetch the issue via the existing `get_issue` function in [jira_client.py](../../../test%201/jira_client.py) and read `issue.fields.assignee.name`. If assigned, replace the token with `[~<assignee.name>]`, same as a resolved name mention. If the issue is unassigned, treat it like a zero-match name (leave the literal token in the text and report back that the ticket has no assignee).
-   - For every other `@name` token, look up JIRA users via the `jira` client instance already exported by [jira_client.py](../../../test%201/jira_client.py) (`from jira_client import jira`) — do not modify that file:
+   - For every other `@name` token, first check the [Team members](../../team-members.md) table (`.github/team-members.md`, gitignored) for a matching name — if found, use that JIRA username directly, no further lookup needed. Otherwise, look up JIRA users via the `jira` client instance already exported by [jira_client.py](../../../test%201/jira_client.py) (`from jira_client import jira`) — do not modify that file:
      ```python
      jira.search_users(user="<name>", includeInactive=False)
      ```
      (This instance is JIRA Server/Data Center — use the `user=` parameter, not `query=`.)
    - **Exactly one match**: replace `@name` in the text with `[~<user.name>]` (the matched user's username field — this is the mention syntax this JIRA instance actually renders, confirmed against existing comments like `[~asideris]`). Do this automatically; no confirmation needed.
-   - **Zero or multiple matches**: don't guess — leave `@name` as literal text in the posted comment, and afterward tell the user it couldn't be resolved (listing candidates' display names/usernames if there were multiple, so they can be more specific next time).
+   - **Zero or multiple matches**: don't guess — leave `@name` as literal text in the posted comment, and afterward tell the user it couldn't be resolved (listing candidates' display names/usernames if there were multiple, so they can be more specific next time). If other conversation context (e.g. the assignee of the issue being discussed) makes the intended person unambiguous despite multiple `search_users` matches, it's fine to resolve using that context — but flag the resolution to the user and add a row to the Team members table in `.github/team-members.md` so the same judgment call isn't needed again.
 4. **Post the comment** (with any resolved mentions substituted in) using the existing `add_comment` function in [jira_client.py](../../../test%201/jira_client.py) — do not modify that file. Run it through the project's venv, e.g.:
    ```powershell
    cd "test 1"
