@@ -15,6 +15,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/fetchbacklog` — [.github/skills/fetchbacklog/SKILL.md](../.github/skills/fetchbacklog/SKILL.md) — fetch every new backlog item created since the skill was last run, displayed in full `/fetch`-style detail; no ALP IL exclusion; tracks last-run time via `test 1/fetchbacklog_state.json`
 - `/fetchmentions` — [.github/skills/fetchmentions/SKILL.md](../.github/skills/fetchmentions/SKILL.md) — digest of new `[~zgrudov]` mentions since the skill was last run; runs daily after `/fetchbacklog` in the "Fetch JIRA backlog + mentions" host automation, or manually; tracks last-run time via `test 1/fetchmentions_state.json`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
+- `/tester` — [.github/skills/tester/SKILL.md](../.github/skills/tester/SKILL.md) — test one ticket's ACs / expected results on Bistro staging via the user-level `tester` subagent (`~/.claude/agents/tester.md`, its own headless Playwright browser that only loads for this skill); shows a pass/fail report with evidence in `test 1/drafts/ac-verify/<KEY>/`, then after the user's feedback attaches the screenshots, posts the findings as a new comment and transitions the ticket
 - `/prototype` — [.github/skills/prototype/SKILL.md](../.github/skills/prototype/SKILL.md) — build a static HTML/CSS UI prototype for a story, grounded in the real `trsc-client` component source (classes/tokens/icons) rather than invented styling; saved to `test 1/drafts/mockups/`; attaching the raw `.html` to a JIRA issue is a separate, explicit step
 
 For code-grounded analysis, open [jira-story-tool.code-workspace](../jira-story-tool.code-workspace) (multi-root: this folder + `trsc-client` + `trsc-gateway`) instead of just this folder.
@@ -51,6 +52,7 @@ test 1/
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
     mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.
+    ac-verify/        — Gitignored evidence screenshots from the /tester skill, one subfolder per issue key.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   attachment_cache/  — Gitignored cache of downloaded JIRA attachments, keyed by issue; populated by attachment_helper.py for /fetch and /fetchbacklog.
   tests/

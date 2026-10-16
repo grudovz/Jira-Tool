@@ -67,6 +67,16 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    ```
    **Must pass `fields={'fixVersions': [...]}`, not a bare `fixVersions=[...]` kwarg.** `update_issue`'s `**fields` forwards straight to `Issue.update()`, whose heuristics merge list-valued kwargs into the JIRA "update operations" section (expecting `set`/`add`/`remove` keys) instead of the plain "fields" section — a bare `fixVersions=[...]` list fails with a 400 (`does not support operation 'name'`). Wrapping it in `fields={...}` routes it through the fields section correctly, which is what a plain "set this field's value" update needs.
 8. **Report back**: which issues were updated (with their new fixVersion list), which were already tagged and skipped, and any that failed (with the JIRA error).
+9. **Provide a shareable release notes link.** This JIRA instance is Server/Data Center (Tomcat-hosted), not Cloud — the Cloud-style `/projects/<KEY>/versions/<id>` URL 404s here. The correct page is `ReleaseNote.jspa`, which needs the numeric project id (not the key) and the version id:
+   ```powershell
+   .\.venv\Scripts\python.exe -c "
+   from jira_client import jira, JIRA_URL
+   project_id = jira.project('TRSC').id
+   version_id = next(v.id for v in jira.project_versions('TRSC') if v.name == '<FIX_VERSION>')
+   print(f'{JIRA_URL}/secure/ReleaseNote.jspa?projectId={project_id}&version={version_id}')
+   "
+   ```
+   Share this link as the final line of the report from step 8 — don't wait for the user to ask for it separately.
 
 ## Notes
 - Read step (`search_issues`) is read-only; the write step touches only `fixVersions` via `update_issue`/`jira.issue` — do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py`, only call their existing functions.
