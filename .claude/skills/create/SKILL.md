@@ -33,7 +33,7 @@ argument-hint: '[pasted issue text]'
    .\.venv\Scripts\python.exe -c "from jira_client import create_issue; i = create_issue(summary='<...>', description='<...>', issue_type='<...>', epic_link='<...>', component='<...>', story_points=<...>); print(i.key)"
    ```
    For anything multi-line or quote-heavy (usually the description), write a small temp script under `$env:TEMP` instead of inlining.
-6. **Confirm back** to the user with the created issue key and a link (`<JIRA_URL>/browse/<KEY>`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)).
+6. **Confirm back** to the user with the created issue key and a link (`<JIRA_URL>/agile/browse/<KEY>`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)).
 
 ## Notes
 - Never invent or silently correct parsed field values — if something looks wrong, surface it in step 3 and let the user decide, don't fix it silently.

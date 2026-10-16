@@ -41,7 +41,7 @@ argument-hint: '[keyword] [assignee] [status] [sprint]'
      - No epic link at all → sub-heading "—"
      - Sub-headings sorted ascending by epic key, with "—" (no epic link) sorted last in the group
    - Under each feature sub-heading, one row per matching issue, in this column order: **Key, Issue Type, Summary, Assignee** (Status and Feature/Epic Link are both dropped from the row — they're now headings):
-     - **Key** — a hyperlink: `[<KEY>](<JIRA_URL>/browse/<KEY>)` (`JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py))
+     - **Key** — a hyperlink: `[<KEY>](<JIRA_URL>/agile/browse/<KEY>)` (`JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py))
      - **Issue Type** — `issue.fields.issuetype.name`
      - **Summary** — `issue.fields.summary`
      - **Assignee** — `issue.fields.assignee.displayName`, or "Unassigned"

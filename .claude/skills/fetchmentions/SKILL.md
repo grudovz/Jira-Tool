@@ -66,7 +66,7 @@ description: 'Digest of TRSC comments mentioning the user (literal "[~zgrudov]" 
    ```
    `search_issues` fetches full fields by default, so `issue.fields.comment.comments` is already present on each result — no per-issue re-fetch needed.
 2. **Zero matches** → say so plainly (e.g. "No new mentions since the last check"), not as an error. Still update the state file.
-3. **Display results digest-style** (not full `/fetch`-style detail): per issue — Key as a hyperlink (`[<KEY>](<JIRA_URL>/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), summary, then for each matching comment: author display name, timestamp, and the comment body (through `jira_markup.to_markdown()`, rendered as real Markdown, never raw/code-fenced). No attachment caching here — out of scope for a digest.
+3. **Display results digest-style** (not full `/fetch`-style detail): per issue — Key as a hyperlink (`[<KEY>](<JIRA_URL>/agile/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), summary, then for each matching comment: author display name, timestamp, and the comment body (through `jira_markup.to_markdown()`, rendered as real Markdown, never raw/code-fenced). No attachment caching here — out of scope for a digest.
 
 ## Notes
 - Read-only against JIRA — only ever calls `search_issues`; never updates, comments on, or transitions any issue. Overwriting the local state file is the only side effect.

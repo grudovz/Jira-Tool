@@ -55,7 +55,7 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
    `search_issues` fetches full fields by default (no `fields=` restriction), so `description`, `comment`, and `attachment` are already present on each result — no per-issue re-fetch needed.
 2. **Zero matches** → say so plainly (e.g. "No new backlog items since the last check"), not as an error. Still update the state file.
 3. **Display each matched issue**, one after another, in the exact same structure and empty-field rules as `/fetch`:
-   - **Key, Summary** — Key as a hyperlink (`[<KEY>](<JIRA_URL>/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), then `issue.fields.summary` (always shown)
+   - **Key, Summary** — Key as a hyperlink (`[<KEY>](<JIRA_URL>/agile/browse/<KEY>)`, `JIRA_URL` from [jira_client.py](../../../test%201/jira_client.py)), then `issue.fields.summary` (always shown)
    - **Condensed metadata line** — `<Issue Type> | <Status> | <Assignee> | <Epic Link> | <Component>`, values only, pipe-separated, same field sources as `/fetch`
    - **Description** — `issue.fields.description`, in full, only if set
    - **Comments** — `issue.fields.comment.comments`, each as author + body, reverse chronological order (newest first), only if any

@@ -46,7 +46,7 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    "
    ```
 5. **Zero matches** → say so plainly, stop here.
-6. **Display the full matched list in chat** — Key (linked, `<JIRA_URL>/browse/<KEY>`), Summary, Component, existing fixVersion(s) — and **always wait for the user's explicit go-ahead** before writing anything to JIRA. Never apply the update in the same turn the list is first shown.
+6. **Display the full matched list in chat** — Key (linked, `<JIRA_URL>/agile/browse/<KEY>`), Summary, Component, existing fixVersion(s) — and **always wait for the user's explicit go-ahead** before writing anything to JIRA. Never apply the update in the same turn the list is first shown.
 7. **On confirmation, apply the fix version to each matched issue.** Re-fetch each issue's current `fixVersions` immediately before updating (don't rely on the list from step 4/6, which may be stale) and add the target version alongside whatever is already there — never remove an existing fixVersion:
    ```powershell
    .\.venv\Scripts\python.exe -c "
