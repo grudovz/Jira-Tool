@@ -15,7 +15,7 @@ argument-hint: '[issue key or number, plus optional focus notes]'
    - Accept a full key (e.g. `TRSC-2992`) or shorthand digits. Prefix digits with `DEFAULT_PROJECT` from [jira_client.py](../../../test%201/jira_client.py).
    - Never guess; ask if no key is given.
    - Pass anything else the user wrote (focus areas, setup hints, checks to skip) on to the agent.
-2. **Run the `tester` subagent in the foreground:** use the Agent tool with `subagent_type: "tester"` and `run_in_background: false`, because the user is waiting and background results get lost. The prompt is the key plus the user's notes. The agent:
+2. **Run the `tester` subagent in the foreground:** use the Agent tool (Copilot: the `task` tool with `agent_type: "tester"`, `mode: "sync"`) with `subagent_type: "tester"` and `run_in_background: false`, because the user is waiting and background results get lost. The prompt is the key plus the user's notes. The agent:
    - reads the ticket;
    - checks the fix is deployed on staging;
    - derives regression checks from the fix's diff;
@@ -70,4 +70,4 @@ Moving to Done.
 - **Playwright setup:** Playwright MCP is installed at `~/.claude/tools/playwright-mcp/`, pinned and run with `node` rather than npx. `staging-login.js` in that folder logs each new tab into staging from `test 1/.env`, so the agent never sees the token. `--secrets` redacts the login URL from tool output.
 - **Name:** the skill is `/tester`, not `/verify`, because "Verify" is the JIRA status for test failed.
 - **Agent scope:** the agent may change staging data freely, and the report lists what changed. Production and JIRA are out of scope for it.
-- **Copilot:** there's no `tester` subagent there. Follow the procedure in `~/.claude/agents/tester.md` directly in chat with the available browser tool.
+- **Copilot:** the same agent exists as `~/.copilot/agents/tester.agent.md` (Copilot's custom-agent format). Its `mcp-servers` block only works in the Copilot CLI; VS Code ignores it, so the same Playwright server is also registered in `~/.copilot/mcp-config.json` (not `%APPDATA%\Code\User\mcp.json`, which is now empty) and the agent reaches it via `tools: playwright/*`. Keep the args in all three places identical, including `--image-responses omit` so images stay out of the agent's context; it views a saved screenshot with `view` only when it must judge something visually. Run it with the `task` tool and `agent_type: "tester"`, in the foreground. Keep it in sync with `~/.claude/agents/tester.md`. It is only picked up by a chat started after the file was created; if `tester` isn't an available agent type, tell the user to start a new chat. Don't fall back to testing in the main chat unless the user asks.

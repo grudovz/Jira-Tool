@@ -15,6 +15,7 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/fetchbacklog` — [.github/skills/fetchbacklog/SKILL.md](../.github/skills/fetchbacklog/SKILL.md) — fetch every new backlog item created since the skill was last run, displayed in full `/fetch`-style detail; no ALP IL exclusion; tracks last-run time via `test 1/fetchbacklog_state.json`
 - `/fetchmentions` — [.github/skills/fetchmentions/SKILL.md](../.github/skills/fetchmentions/SKILL.md) — digest of new `[~zgrudov]` mentions since the skill was last run; runs daily after `/fetchbacklog` in the "Fetch JIRA backlog + mentions" host automation, or manually; tracks last-run time via `test 1/fetchmentions_state.json`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
+- `/exportsprintreview` — [.github/skills/exportsprintreview/SKILL.md](../.github/skills/exportsprintreview/SKILL.md) — recurring (~every 2 weeks) export of TRSC issues moved to Done in a two-week sprint window (auto-computed from a fixed anchor, or given explicitly) to a CSV (Key, Summary, Assignee, Component, Description) in `test 1/drafts/`, for handoff to another agent building a sprint review PowerPoint; includes ALP IL by default (same team)
 - `/tester` — [.github/skills/tester/SKILL.md](../.github/skills/tester/SKILL.md) — test one ticket's ACs / expected results on Bistro staging via the user-level `tester` subagent (`~/.claude/agents/tester.md`, its own headless Playwright browser that only loads for this skill); shows a pass/fail report with evidence in `test 1/drafts/ac-verify/<KEY>/`, then after the user's feedback attaches the screenshots, posts the findings as a new comment and transitions the ticket
 - `/prototype` — [.github/skills/prototype/SKILL.md](../.github/skills/prototype/SKILL.md) — build a static HTML/CSS UI prototype for a story, grounded in the real `trsc-client` component source (classes/tokens/icons) rather than invented styling; saved to `test 1/drafts/mockups/`; attaching the raw `.html` to a JIRA issue is a separate, explicit step
 
@@ -65,6 +66,7 @@ test 1/
 ## Architecture rules
 - `app.py` must never call the JIRA API directly — always via `jira_client.py`
 - Skills are mirrored in two locations — `.github/skills/<name>/SKILL.md` (Copilot) and `.claude/skills/<name>/SKILL.md` (Claude Code) — and must stay byte-identical. Whenever a skill is created or edited in one location, apply the exact same change to the other in the same commit.
+- The `tester` subagent exists as two user-level files outside this repo that must stay functionally in sync: `~/.claude/agents/tester.md` (Claude Code) and `~/.copilot/agents/tester.agent.md` (Copilot). Whenever either is edited (procedure, rules, report format, Playwright server args), apply the same change to the other in the same turn. Only the frontmatter (`memory`/`disallowedTools`/`model` vs `tools`/`mcp-servers` format) and shell syntax (bash vs PowerShell) may differ. Memory is shared: both use `~/.claude/agent-memory/tester/` (Claude via its built-in `memory: user`, Copilot by explicitly reading/writing the same folder), so notes learned by one agent benefit the other.
 - `story_parser.py` must remain free of network calls and external dependencies
 - `bug_parser.py` must remain free of network calls and external dependencies
 
@@ -102,6 +104,8 @@ The description is generally split into these sections, in this order. **Backgro
 Leave an additional blank line between each section — not just between a heading and its content, but between one section's content and the next section's heading.
 
 Section headings (`Background`, `Technical Details`, `Acceptance Criteria`, and the Acceptance Criteria sub-headings below) are written wrapped in JIRA's bold wiki markup — single asterisks, e.g. `*Background*` — not plain text, so they render bold in JIRA without a separate formatting step later. Applies wherever this content is assembled: `/draft`'s scratch file and any description text headed to `/create`/`update_issue`.
+
+Code/ASCII-diagram blocks are the opposite case: use plain markdown triple-backtick fences (` ``` `) in any reviewable draft `.md` file (e.g. `/draft`'s scratch file, or ad-hoc story drafts under `test 1/drafts/`), not JIRA's `{code}...{code}` wiki markup — `{code}` doesn't render in a plain `.md` viewer. Convert to `{code}` only at the point the text is actually pasted into `/create` or a JIRA description field.
 
 ### Acceptance criteria conventions
 - **Included in the description** — not left as a separate field or omitted.
@@ -155,6 +159,7 @@ Consider whether the following have been addressed:
 - Potential component state issues
 - Potential security issues arising from the requirements
 - Completeness of examples — when a trigger condition, request payload, or data mapping is specified via one representative example (a single direction of interaction, a single field/parameter), check whether that example generalizes to the full realistic range (other directions, additional/combined parameters) or whether it actually is the complete rule — don't let an illustrative example silently stand in for the general case.
+- Scope/ownership level of new data or settings — when a story introduces a new data association or setting (e.g. "link X to Y"), check whether the entity it's keyed against (agent, agency, office, hotel, etc.) is stated explicitly rather than left implicit. Skip this when the scope is genuinely unambiguous from context (e.g. a clearly personal, single-user draft).
 
 ### Code-grounding scope (used by `/analyse` and `/draft`)
 When the client/gateway code is available (multi-root workspace open), use it only to:
