@@ -37,7 +37,7 @@ argument-hint: '[issue key or number, plus optional focus notes]'
       - no clear verdict → post without transitioning, then ask.
 
    Write the calls into a temp script under `$TEMP`, because quotes and newlines break one-liners. Run it with the venv Python from `test 1`, then delete it.
-6. **Confirm back:** the key (as a `/agile/browse/<KEY>` link), the attachments, the comment posted and the new status.
+6. **Confirm back:** the key (as a `<JIRA_URL>/browse/<KEY>` link, where `JIRA_URL` already ends in `/agile`), the attachments, the comment posted and the new status.
 
 ## Comment format (JIRA wiki markup)
 ```
