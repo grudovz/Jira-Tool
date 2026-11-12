@@ -16,6 +16,8 @@ Day-to-day work happens directly in VS Code Copilot Chat, which calls `jira_clie
 - `/fetchmentions` — [.github/skills/fetchmentions/SKILL.md](../.github/skills/fetchmentions/SKILL.md) — digest of new `[~zgrudov]` mentions since the skill was last run; runs daily after `/fetchbacklog` in the "Fetch JIRA backlog + mentions" host automation, or manually; tracks last-run time via `test 1/fetchmentions_state.json`
 - `/releasenotes` — [.github/skills/releasenotes/SKILL.md](../.github/skills/releasenotes/SKILL.md) — recurring (~every 2 weeks) bulk task: find TRSC issues moved to Done in a date window, excluding ALP IL components by default (separate product, own release notes run), and set a given fixVersion on them; always confirms the matched list before writing
 - `/exportsprintreview` — [.github/skills/exportsprintreview/SKILL.md](../.github/skills/exportsprintreview/SKILL.md) — recurring (~every 2 weeks) export of TRSC issues moved to Done in a two-week sprint window (auto-computed from a fixed anchor, or given explicitly) to a CSV (Key, Summary, Assignee, Component, Description) in `test 1/drafts/`, for handoff to another agent building a sprint review PowerPoint; includes ALP IL by default (same team)
+- `/createobjectives` — [.github/skills/createobjectives/SKILL.md](../.github/skills/createobjectives/SKILL.md) — once per PI: create the team's PI Objectives (LPDA, component TRS) from a priority-ordered list of epics via `objectives_helper.py`, one per epic with link, fixVersion, Iteration label, Planned Business Value and Target end; always shows the drafted objectives and waits for approval before creating
+- `/systemdemo` — [.github/skills/systemdemo/SKILL.md](../.github/skills/systemdemo/SKILL.md) — around each system demo: before, add the TRS objectives in Reviewing to the upcoming demo's section of the PI's System Demos Confluence page (via the mcp-gateway Confluence tools); after, set Actual Business Value, move them to Done / Partially Done and fill the ABV on the page; always confirms before writing
 - `/tester` — [.github/skills/tester/SKILL.md](../.github/skills/tester/SKILL.md) — test one ticket's ACs / expected results on Bistro staging via the user-level `tester` subagent (`~/.claude/agents/tester.md`, its own headless Playwright browser that only loads for this skill); shows a pass/fail report with evidence in `test 1/drafts/ac-verify/<KEY>/`, then after the user's feedback attaches the screenshots, posts the findings as a new comment and transitions the ticket
 - `/prototype` — [.github/skills/prototype/SKILL.md](../.github/skills/prototype/SKILL.md) — build a static HTML/CSS UI prototype for a story, grounded in the real `trsc-client` component source (classes/tokens/icons) rather than invented styling; saved to `test 1/drafts/mockups/`; attaching the raw `.html` to a JIRA issue is a separate, explicit step
 
@@ -49,16 +51,19 @@ test 1/
   epic_aliases.py     — EPIC_ALIASES dict + resolve_epic_alias; dict is the editable exception, function is off-limits.
   create_helper.py    — Thin wrapper chaining /create's parse steps into one prepare_issue() call.
   attachment_helper.py — Thin wrapper downloading an issue's attachments to attachment_cache/ for /fetch and /fetchbacklog.
+  objectives_helper.py — Plans/creates TRS PI Objectives in LPDA for /createobjectives; lists and closes them, with System Demos page lines, for /systemdemo.
   jira_markup.py      — Converts JIRA wiki markup to Markdown for display.
   app.py              — Streamlit UI. On hold, do not modify/suggest changes unless explicitly asked — see Primary workflow above.
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
     mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.
     ac-verify/        — Gitignored evidence screenshots from the /tester skill, one subfolder per issue key.
+    objectives/       — Gitignored approved plan/close files (PI<PI>-plan.json, PI<PI>-close.json) from /createobjectives and /systemdemo.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   attachment_cache/  — Gitignored cache of downloaded JIRA attachments, keyed by issue; populated by attachment_helper.py for /fetch and /fetchbacklog.
   tests/
     test_parser.py      — Unit tests for story_parser.py
     test_bug_parser.py  — Unit tests for bug_parser.py
+    test_objectives_helper.py — Unit tests for objectives_helper.py (JIRA mocked)
   main.py             — Legacy CLI entry point. Kept for reference.
   requirements.txt    — Pinned dependencies.
 ```
@@ -227,4 +232,6 @@ Applies to the chat+skills workflow (draft files, comments) and only to `app.py`
 JIRA_URL=
 JIRA_USER=
 JIRA_API_TOKEN=
+CONFLUENCE_JIRA_SERVER=      # Jira Legacy macro server name, for /systemdemo page lines
+CONFLUENCE_JIRA_SERVER_ID=   # Jira Legacy macro server id, for /systemdemo page lines
 ```
