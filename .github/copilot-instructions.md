@@ -140,7 +140,7 @@ Steps
 ```
 `bug_parser.parse_bug_description` transforms that into the final JIRA-formatted description:
 ```
-Tested in version: 1.8.2
+Tested in version: 1.8.8
 
 *Steps*
 
@@ -151,7 +151,7 @@ Tested in version: 1.8.2
 
 <expected result>
 ```
-- `1.8.2` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
+- `1.8.8` comes from `DEFAULT_APP_VERSION` in `bug_parser.py` — the single source of truth for the current application version. Update it there when the user gives a new one; don't hardcode the version anywhere else.
 - If the raw description doesn't match the expected `Steps`/blank-line/expected-result shape, `parse_bug_description` returns `None` and `/create` leaves the description untouched, flagging this to the user rather than guessing.
 
 ### Completeness lens (used by `/analyse`, and by any ad-hoc/collaborative story drafting)

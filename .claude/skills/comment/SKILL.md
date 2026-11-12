@@ -16,6 +16,7 @@ argument-hint: '[comment text]'
    - Otherwise, scan this conversation for the most recently retrieved/discussed JIRA issue key (look for JIRA links, or prior `get_issue`/`add_comment`/`update_issue` calls).
    - Never invent a key. If none can be found, ask the user which issue to comment on.
 2. **Resolve the comment text**: everything the user wrote after `/comment`. If blank, ask the user what to comment.
+   - The user dictates by voice (Dragon NaturallySpeaking), so the text can carry mishearings or dropped words. Fix the obvious ones in the text before posting (e.g. "was" for "what", a dropped "you" in "can let me know") — standing approval, no need to ask first. Fix only clear slips: keep the user's wording, don't change the meaning, and if the intended word is genuinely unclear, post it as dictated and ask. List each fix in step 7 so a wrong guess can be caught.
 3. **Resolve `@name` mentions** — the user has given standing approval to do this automatically, without asking per-comment:
    - Find every `@name` token in the comment text (e.g. `@al`, `@aleksis`).
    - **Special case — `@ticket`/`@Ticket` (case-insensitive, exact token match)**: resolves to the current assignee of the issue being commented on (the key resolved in step 1), not a name search. Fetch the issue via the existing `get_issue` function in [jira_client.py](../../../test%201/jira_client.py) and read `issue.fields.assignee.name`. If assigned, replace the token with `[~<assignee.name>]`, same as a resolved name mention. If the issue is unassigned, treat it like a zero-match name (leave the literal token in the text and report back that the ticket has no assignee).
@@ -40,6 +41,7 @@ argument-hint: '[comment text]'
 6. **Check for status transition signals** — the user has given standing approval for auto-transitions on Done and test failed, no need to ask each time:
    - **Done/approved**: If the comment text clearly states the issue should now be considered done/approved/closed (e.g. "moving to done", "move to done", "marking as done", "marking as approved", "this is approved", "closing as done") — as a verdict on the ticket, not incidental use of the word — transition it via `transition_issue('TRSC-...', 'Done')`.
    - **Test failed**: If the comment text clearly states the issue should move to test failed (e.g. "moving to test failed", "test failed", "marking as test failed") — as a verdict on the ticket — transition it via `transition_issue('TRSC-...', 'Verify')`.
+   - **Dictation near-misses**: a slip that is a close phonetic match for one of these phrases counts as the phrase (e.g. "Marketing done" for "marking done") — correct it in the posted text per step 2, transition, and say so in step 7.
    - Reference the JIRA status mapping table in [copilot-instructions.md](../../copilot-instructions.md) to map internal status names to JIRA status names when transitioning.
    - Use the existing `transition_issue` function in [jira_client.py](../../../test%201/jira_client.py):
      ```powershell
@@ -47,7 +49,7 @@ argument-hint: '[comment text]'
      .\.venv\Scripts\python.exe -c "from jira_client import transition_issue; transition_issue('<KEY>', '<JIRA_STATUS>')"
      ```
    - Don't trigger on negated or uncertain phrasing (e.g. "not done yet", "can't confirm this is done", "isn't done") — if genuinely ambiguous whether the user means to transition, don't guess: post the comment as normal and ask before transitioning.
-7. **Confirm** back to the user which issue key was commented on, the exact text posted (with mentions already resolved shown as who they resolved to), any `@name` that couldn't be resolved, any image(s) attached, and whether the status was also transitioned (and to what).
+7. **Confirm** back to the user which issue key was commented on, the exact text posted (with mentions already resolved shown as who they resolved to), any dictation corrections made (old → new), any `@name` that couldn't be resolved, any image(s) attached, and whether the status was also transitioned (and to what).
 
 ## Notes
 - This mirrors the manual steps already used in this project for TRSC-2898 comments/description updates.

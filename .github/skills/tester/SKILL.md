@@ -27,14 +27,14 @@ argument-hint: '[issue key or number, plus optional focus notes]'
 3. **Show the report.** The user can't see the agent's reply, so relay it in full: table, things noticed, for you to check, staging data changed. Register each screenshot via `add_artifact_or_reference` (`type: 'file'`, `isArtifact: true`, `label: "<KEY> evidence: <filename>"`, `uri` = its `file://` path) so it's clickable.
 4. **Wait for the user's feedback.**
    - Don't ask before or during testing. The report states its judgement calls, and the user confirms them afterwards.
-   - For follow-up checks (e.g. "re-check 3 at 375px"), use `SendMessage` to the same agent. It keeps its context, and its browser restarts logged in.
+   - For follow-up checks (e.g. "re-check 3 at 375px"), use `SendMessage` to the same agent. It keeps its context, and its browser restarts logged in. Unlike the first run, a follow-up resumes the agent in the background, usually for 2 to 6 minutes. Tell the user straight away that the result will arrive as a new message in this chat, and relay the full report in the same format when the completion notice comes. In the TRSC-3023 chat the reply went unnoticed and the user asked where it was.
 5. **After the feedback, post to JIRA.** This has standing approval; don't confirm again.
    1. Attach every screenshot the report used, via `attach_file` in [jira_client.py](../../../test%201/jira_client.py).
    2. Post **one new comment** via `add_comment`, in the format below, with the user's corrections applied (changed verdicts, dropped items). Never edit an existing comment that embeds images.
    3. Transition per the user's verdict via `transition_issue`:
       - done or approved → `'Done'`
       - test failed → `'Verify'`
-      - no clear verdict → post without transitioning, then ask.
+      - no clear verdict → post without transitioning, then ask. If someone else should verify too, offer to tag the ticket's reporter (`issue.fields.reporter.name`, as `[~name]`) in the comment.
 
    Write the calls into a temp script under `$TEMP`, because quotes and newlines break one-liners. Run it with the venv Python from `test 1`, then delete it.
 6. **Confirm back:** the key (as a `<JIRA_URL>/browse/<KEY>` link, where `JIRA_URL` already ends in `/agile`), the attachments, the comment posted and the new status.
@@ -67,7 +67,7 @@ Moving to Done.
 
 ## Notes
 - **Why the agent lives at user level:** it's `~/.claude/agents/tester.md`, not in this repo, because its Playwright MCP server is defined inline. The server starts with the agent and stops when the agent ends, so normal chats (editing tickets etc.) never load the browser or its ~5k tokens of tool definitions. Claude Code only loads inline MCP servers from a project's `.claude/agents/` if the folder is trusted, and SDK sessions don't count as trusted; user-level agents don't need trust.
-- **Playwright setup:** Playwright MCP is installed at `~/.claude/tools/playwright-mcp/`, pinned and run with `node` rather than npx. `staging-login.js` in that folder logs each new tab into staging from `test 1/.env`, so the agent never sees the token. `--secrets` redacts the login URL from tool output.
+- **Playwright setup:** Playwright MCP is installed at `~/.claude/tools/playwright-mcp/`, pinned and run with `node` rather than npx. `staging-login.js` in that folder logs each new tab into staging from `test 1/.env`, so the agent never sees the token, and closes the onboarding guide whenever it opens (`localStorage.keepGuideTour` switches that off for tickets about the guide). `--secrets` redacts the login URL from tool output.
 - **Name:** the skill is `/tester`, not `/verify`, because "Verify" is the JIRA status for test failed.
 - **Agent scope:** the agent may change staging data freely, and the report lists what changed. Production and JIRA are out of scope for it.
 - **Copilot:** the same agent exists as `~/.copilot/agents/tester.agent.md` (Copilot's custom-agent format). Its `mcp-servers` block only works in the Copilot CLI; VS Code ignores it, so the same Playwright server is also registered in `~/.copilot/mcp-config.json` (not `%APPDATA%\Code\User\mcp.json`, which is now empty) and the agent reaches it via `tools: playwright/*`. Keep the args in all three places identical, including `--image-responses omit` so images stay out of the agent's context; it views a saved screenshot with `view` only when it must judge something visually. Run it with the `task` tool and `agent_type: "tester"`, in the foreground. Keep it in sync with `~/.claude/agents/tester.md`. It is only picked up by a chat started after the file was created; if `tester` isn't an available agent type, tell the user to start a new chat. Don't fall back to testing in the main chat unless the user asks.
