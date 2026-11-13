@@ -20,7 +20,7 @@ argument-hint: '[comment text]'
 3. **Resolve `@name` mentions** — the user has given standing approval to do this automatically, without asking per-comment:
    - Find every `@name` token in the comment text (e.g. `@al`, `@aleksis`).
    - **Special case — `@ticket`/`@Ticket` (case-insensitive, exact token match)**: resolves to the current assignee of the issue being commented on (the key resolved in step 1), not a name search. Fetch the issue via the existing `get_issue` function in [jira_client.py](../../../test%201/jira_client.py) and read `issue.fields.assignee.name`. If assigned, replace the token with `[~<assignee.name>]`, same as a resolved name mention. If the issue is unassigned, treat it like a zero-match name (leave the literal token in the text and report back that the ticket has no assignee).
-   - For every other `@name` token, first check the [Team members](../../team-members.md) table (`.github/team-members.md`, gitignored) for a matching name — if found, use that JIRA username directly, no further lookup needed. Otherwise, look up JIRA users via the `jira` client instance already exported by [jira_client.py](../../../test%201/jira_client.py) (`from jira_client import jira`) — do not modify that file:
+   - For every other `@name` token, first check the [Team members](../../../.github/team-members.md) table (`.github/team-members.md`, gitignored) for a matching name — if found, use that JIRA username directly, no further lookup needed. Otherwise, look up JIRA users via the `jira` client instance already exported by [jira_client.py](../../../test%201/jira_client.py) (`from jira_client import jira`) — do not modify that file:
      ```python
      jira.search_users(user="<name>", includeInactive=False)
      ```
@@ -33,7 +33,7 @@ argument-hint: '[comment text]'
    .\.venv\Scripts\python.exe -c "from jira_client import add_comment; add_comment('<KEY>', '<TEXT>')"
    ```
    If the comment text contains quotes, newlines, or other characters that break PowerShell quoting, write a small temp script under `$env:TEMP` instead, import `add_comment` (and `jira` for mention lookups) via `sys.path`, run it, then delete the temp file.
-5. **Attach any pasted image(s)** — see [Attachment handling](../../copilot-instructions.md#attachment-handling) in copilot-instructions.md; standing approval, no need to ask. If the message that triggered this `/comment` (or an ad-hoc "add a comment" request) includes one or more pasted images, attach each one to the same issue key via `attach_file` in [jira_client.py](../../../test%201/jira_client.py), passing the image's file path directly:
+5. **Attach any pasted image(s)** — see [Attachment handling](../../../CLAUDE.md#attachment-handling) in CLAUDE.md; standing approval, no need to ask. If the message that triggered this `/comment` (or an ad-hoc "add a comment" request) includes one or more pasted images, attach each one to the same issue key via `attach_file` in [jira_client.py](../../../test%201/jira_client.py), passing the image's file path directly:
    ```powershell
    .\.venv\Scripts\python.exe -c "from jira_client import attach_file; attach_file('<KEY>', r'<IMAGE_PATH>')"
    ```
@@ -42,7 +42,7 @@ argument-hint: '[comment text]'
    - **Done/approved**: If the comment text clearly states the issue should now be considered done/approved/closed (e.g. "moving to done", "move to done", "marking as done", "marking as approved", "this is approved", "closing as done") — as a verdict on the ticket, not incidental use of the word — transition it via `transition_issue('TRSC-...', 'Done')`.
    - **Test failed**: If the comment text clearly states the issue should move to test failed (e.g. "moving to test failed", "test failed", "marking as test failed") — as a verdict on the ticket — transition it via `transition_issue('TRSC-...', 'Verify')`.
    - **Dictation near-misses**: a slip that is a close phonetic match for one of these phrases counts as the phrase (e.g. "Marketing done" for "marking done") — correct it in the posted text per step 2, transition, and say so in step 7.
-   - Reference the JIRA status mapping table in [copilot-instructions.md](../../copilot-instructions.md) to map internal status names to JIRA status names when transitioning.
+   - Reference the JIRA status mapping table in [CLAUDE.md](../../../CLAUDE.md) to map internal status names to JIRA status names when transitioning.
    - Use the existing `transition_issue` function in [jira_client.py](../../../test%201/jira_client.py):
      ```powershell
      cd "test 1"

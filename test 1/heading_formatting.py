@@ -1,7 +1,7 @@
 """
 Bolds known JIRA description section headings (Background, Design, Technical
 Details, Acceptance Criteria/AC) when one appears as the first line of a
-paragraph, per the Description structure convention in copilot-instructions.md.
+paragraph, per the Description structure convention in CLAUDE.md.
 
 A "paragraph" is the same unit capitalization.py uses: a block of text
 separated from its neighbors by one or more blank lines. Only the heading

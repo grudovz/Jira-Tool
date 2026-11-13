@@ -22,7 +22,7 @@ argument-hint: '[keyword] [assignee] [status] [sprint]'
    jira.search_users(user="<name>", includeInactive=False)
    ```
    Exactly one match → use that user's `.name` in the JQL (`assignee = "<name>"`). Zero or multiple matches → don't guess, ask which user was meant.
-3. **Resolve status** (if given) to the raw JIRA status name using the mapping table in [copilot-instructions.md](../../copilot-instructions.md) — this is the reverse direction of what `/fetch` does (internal → JIRA, not JIRA → internal). If the given status isn't in that table, don't guess a mapping — ask.
+3. **Resolve status** (if given) to the raw JIRA status name using the mapping table in [CLAUDE.md](../../../CLAUDE.md) — this is the reverse direction of what `/fetch` does (internal → JIRA, not JIRA → internal). If the given status isn't in that table, don't guess a mapping — ask.
 4. **Build the JQL** and run it via the existing `search_issues` function in [jira_client.py](../../../test%201/jira_client.py) — do not modify that file:
    - Always scope to `project = TRSC` (`DEFAULT_PROJECT`) unless told otherwise
    - Keyword → `text ~ "<keyword>"`
@@ -34,7 +34,7 @@ argument-hint: '[keyword] [assignee] [status] [sprint]'
    cd "test 1"
    .\.venv\Scripts\python.exe -c "from jira_client import search_issues; ..."
    ```
-5. **Display results grouped by status**, not as one flat list. Group headings follow the row order of the mapping table in [copilot-instructions.md](../../copilot-instructions.md) (e.g. "to do" before "blocked" before "in progress" ... "approved") — not JQL/JIRA return order; an unmapped raw status heading sorts after every mapped one. Skip any status heading with zero matches.
+5. **Display results grouped by status**, not as one flat list. Group headings follow the row order of the mapping table in [CLAUDE.md](../../../CLAUDE.md) (e.g. "to do" before "blocked" before "in progress" ... "approved") — not JQL/JIRA return order; an unmapped raw status heading sorts after every mapped one. Skip any status heading with zero matches.
    - **Status heading** — the internal status name in quotes, e.g. `"in progress"` (raw JIRA name instead if unmapped), on its own line
    - **Feature sub-heading** — under each status heading, group rows by `issue.fields.customfield_10006` (Feature/Epic Link):
      - Look up the epic key in [epic_aliases.py](../../../test%201/epic_aliases.py)'s alias mapping (reverse direction — epic key → alias name) and show the alias name as the sub-heading if one exists; otherwise show the raw epic key

@@ -62,7 +62,7 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
    - **Attachments** — filenames from `issue.fields.attachment`, only if any
    - Omit empty fields/segments/sections entirely — no placeholder text, same rule as `/fetch`
    - Description and comment bodies are JIRA wiki markup, not Markdown — convert each through `jira_markup.to_markdown()` (see [jira_markup.py](../../../test%201/jira_markup.py)) before displaying, and render the result as real Markdown (bold, bullet lists, links) directly in the chat response. Never show the raw JIRA markup literally and never wrap it in a code fence.
-4. **For each issue with attachments**, cache them locally and register each as a clickable link — see [Attachment caching for fetch skills](../../copilot-instructions.md#attachment-caching-for-fetch-skills).
+4. **For each issue with attachments**, cache them locally and register each as a clickable link — see [Attachment caching for fetch skills](../../../CLAUDE.md#attachment-caching-for-fetch-skills).
 
 ## Notes
 - Read-only against JIRA — only ever calls `search_issues`; never updates, comments on, or transitions any issue. Overwriting the local state file and downloading attachments to the local cache are the only side effects.
