@@ -15,6 +15,7 @@ argument-hint: '[issue key or number, plus optional focus notes]'
    - Accept a full key (e.g. `TRSC-2992`) or shorthand digits. Prefix digits with `DEFAULT_PROJECT` from [jira_client.py](../../../test%201/jira_client.py).
    - Never guess; ask if no key is given.
    - Pass anything else the user wrote (focus areas, setup hints, checks to skip) on to the agent.
+   - Offers to test with go in the prompt as written: `request: <file name>` (a saved Bistro request in `test 1/drafts/bistro requests/`), `request:` plus pasted JSON, or `offer ID: <id>` plus `hotel-only NLT` or `package`, optionally with `add to existing: <customer offer>`. See [Supplying offers](#supplying-offers).
 2. **Run the `tester` subagent in the foreground:** use the Agent tool (Copilot: the `task` tool with `agent_type: "tester"`, `mode: "sync"`) with `subagent_type: "tester"` and `run_in_background: false`, because the user is waiting and background results get lost. The prompt is the key plus the user's notes. The agent:
    - reads the ticket;
    - checks the fix is deployed on staging;
@@ -38,6 +39,20 @@ argument-hint: '[issue key or number, plus optional focus notes]'
 
    Write the calls into a temp script under `$TEMP`, because quotes and newlines break one-liners. Run it with the venv Python from `test 1`, then delete it.
 6. **Confirm back:** the key (as a `<JIRA_URL>/browse/<KEY>` link, where `JIRA_URL` already ends in `/agile`), the attachments, the comment posted and the new status.
+
+## Supplying offers
+When staging has no offer of the type a ticket needs, the user can hand the agent one to ingest through the gateway with the staging token. It files the offer under the customer "AUTO Tester".
+
+| The user writes | The agent |
+|---|---|
+| `request: single room request` | Sends the saved body `test 1/drafts/bistro requests/single room request.json` as it is |
+| `request:` + pasted `{"data": {...}}` JSON | Saves it to that folder as `<KEY> <type> request.json`, then sends it |
+| `offer ID: <id> hotel-only NLT` (or `package`) | Builds a minimal request around the ID: 2 adults and a stated placeholder price, unless travellers or a price are given too |
+| `add to existing: <customer offer id or last name>`, with any of the above | Adds the offer to that customer offer instead of the offers list |
+
+- The folder is shared with the regression suite (`BC/trsc-regression`) and gitignored with the rest of `drafts/`.
+- NLT IDs expire within about two days, sometimes hours. An expired offer comes back "not transferred": the agent marks the check Can't verify and asks for a fresh request rather than switching to a made-up offer.
+- The agent checks that a request matches its file name and the ticket (type, multi-room, add to existing) before using it.
 
 ## Comment format (JIRA wiki markup)
 ```

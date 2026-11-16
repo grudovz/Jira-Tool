@@ -57,6 +57,7 @@ test 1/
   drafts/             — Gitignored scratch folder for the /draft skill; item.md holds the current draft for review/dictation.
     mockups/          — Gitignored scratch folder for the /prototype skill; static HTML/CSS UI prototypes grounded in trsc-client's real source.
     ac-verify/        — Gitignored evidence screenshots from the /tester skill, one subfolder per issue key.
+    bistro requests/  — Gitignored saved Bistro POST /offers bodies, for /tester (`request: <file name>`) and the BC/trsc-regression ingest tests.
     objectives/       — Gitignored approved plan/close files (PI<PI>-plan.json, PI<PI>-close.json) from /createobjectives and /systemdemo.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   attachment_cache/  — Gitignored cache of downloaded JIRA attachments, keyed by issue; populated by attachment_helper.py for /fetch and /fetchbacklog.
