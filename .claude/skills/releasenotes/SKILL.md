@@ -30,14 +30,15 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    ```
    Not found → tell the user and confirm before proceeding (don't guess a close match, don't create the version).
 2. **Resolve the date scope.** Interpret dates as day-first (`DD/MM/YY` or `DD/MM/YYYY`, e.g. `13/8/26` → `2026-08-13`), matching how the user phrases them; 2-digit years are `20XX`. If a date is genuinely ambiguous, ask rather than guess.
-   - Since-date only → JQL clause: `status changed to "Done" after "<since>"`
-   - Explicit range → JQL clause: `status changed to "Done" after "<start>" AND status changed to "Done" before "<end>"`
+   - Since-date only → JQL clause: `status changed to "Done" after "<since> 00:00"`
+   - Explicit range → JQL clause: `status changed to "Done" after "<start> 00:00" AND status changed to "Done" before "<end + 1 day>"`
+   - **Both boundaries are day-inclusive, and a bare date does not do that.** In this JIRA, `after "2026-11-09"` excludes the whole of 11-09 and `before "2026-11-09"` also excludes it (verified 2026-11-19: an issue moved to Done on 11-09 at 14:24 was missed by `after "2026-11-09"`, found by `after "2026-11-09 00:00"`). So always write the start as `"<start> 00:00"` and the end as the following day's bare date, otherwise issues moved to Done on the first or last day are silently dropped.
 3. **Resolve product scope** per the block above, producing either `component not in (...)` (default) or `component in (...)` (ALP IL named).
 4. **Build and run the JQL** via the existing `search_issues` function in [jira_client.py](../../../test%201/jira_client.py) — do not modify that file. Note the fix version being applied is **not** part of this search query — it's what gets written in step 6, not a filter:
    ```powershell
    .\.venv\Scripts\python.exe -c "
    from jira_client import search_issues
-   jql = 'project = TRSC AND status changed to \"Done\" after \"<since>\" AND component not in (\"ALP IL - Administration\", \"ALP IL - Operation\", \"ALP IL - Reservation\")'
+   jql = 'project = TRSC AND status changed to \"Done\" after \"<since> 00:00\" AND component not in (\"ALP IL - Administration\", \"ALP IL - Operation\", \"ALP IL - Reservation\")'
    issues = search_issues(jql, max_results=200)
    for i in issues:
        comps = ', '.join(c.name for c in i.fields.components) if i.fields.components else 'none'
