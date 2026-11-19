@@ -20,8 +20,8 @@ EPIC_ALIASES = {
     "mail service": "LPDA-2149",
     "Israel": "LPDA-1777",
     "ALP IL": "LPDA-1777",
-    "Bistro Connect": "LPDA-3064",
-    "bistro": "LPDA-3255",
+    "Bistro infrastructure": "LPDA-3391",
+    "bistro enhancements": "LPDA-3397",
 }
 
 _LOOKUP = {name.strip().casefold(): key for name, key in EPIC_ALIASES.items()}
