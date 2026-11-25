@@ -35,6 +35,11 @@ STORY_POINTS_FIELD = "customfield_10002"  # "Estimate" in the JIRA UI
 DEFAULT_BOARD_ID = 19034  # "TravelScript - Sprint" board, used to resolve sprint names
 
 
+def issue_url(issue_key: str) -> str:
+    """Browser link for an issue. JIRA_URL already ends in /agile, so never add it again."""
+    return f"{JIRA_URL}/browse/{issue_key}"
+
+
 def get_issue(issue_key: str):
     """Fetch a single issue by key, e.g. 'PROJ-123'."""
     return jira.issue(issue_key)

@@ -35,7 +35,7 @@ Two runs per system demo:
    - **TRS item exists** → `insertNodeAfter` the last `<li>` of its nested `<ul>`, `value` = the objective's `line_html`. For several objectives, insert them after that same anchor in reverse order so they end up in key order
    - **No TRS item, and the section's only team item is a placeholder** (e.g. `Team …`, no nested list) → `replaceNode` on that placeholder `<li>` with `team_item_html` (built from the objectives still to add)
    - **No TRS item, other teams present** → `insertNodeAfter` the last team `<li>` of the section's last PI Objectives `<ul>`, `value` = `team_item_html`
-5. **Show the plan in chat** — demo (name and date), and per objective: key (linked, `<JIRA_URL>/browse/<KEY>`), summary, the line text `KEY (PBV: n, ABV: )`, and the action (new TRS item / added to TRS item / replaces placeholder). **Wait for the user's go-ahead.** Never write in the same turn the plan is first shown.
+5. **Show the plan in chat** — demo (name and date), and per objective: key (linked with the `url` that `objectives_helper.py` returns), summary, the line text `KEY (PBV: n, ABV: )`, and the action (new TRS item / added to TRS item / replaces placeholder). **Wait for the user's go-ahead.** Never write in the same turn the plan is first shown.
 6. **Save** with `updateConfluenceContent`: `contentId`, `snapshotToken`, `edits`, `versionMessage: "TRS objectives for System Demo <PI>-<N>"`. Don't use `dryRun` (it echoes the whole page). On `snapshot_stale`, re-read the page (step 2) and redo step 4 before retrying.
 7. **Verify and report**: re-read the page as markdown and confirm the lines sit under the right demo; report the demo, the objectives added and the page link.
 

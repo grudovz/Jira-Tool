@@ -209,7 +209,7 @@ def plan(pi: str, epic_keys: list) -> dict:
 def create(plan_path: str) -> list:
     """Creates every objective in an approved plan file; skips epics that already have one
     for this PI. Returns one result dict per entry."""
-    from jira_client import JIRA_URL, jira
+    from jira_client import issue_url, jira
 
     with open(plan_path, "r", encoding="utf-8") as f:
         approved = json.load(f)
@@ -231,7 +231,7 @@ def create(plan_path: str) -> list:
             issue = jira.create_issue(fields=objective_fields(objective, pi, owner))
             jira.create_issue_link("Relates", issue.key, epic_key)
             results.append({"epic": epic_key, "status": "created", "key": issue.key,
-                            "url": f"{JIRA_URL}/browse/{issue.key}"})
+                            "url": issue_url(issue.key)})
         except Exception as e:
             results.append({"epic": epic_key, "status": "failed", "error": str(e)})
     return results
@@ -239,7 +239,7 @@ def create(plan_path: str) -> list:
 
 def reviewing(pi: str) -> dict:
     """TRS objectives of the PI in status Reviewing, with their System Demos page markup."""
-    from jira_client import JIRA_URL, search_issues
+    from jira_client import issue_url, search_issues
 
     jql = (f'project = {OBJECTIVE_PROJECT} AND issuetype = "{OBJECTIVE_TYPE}" '
            f'AND component = {OBJECTIVE_COMPONENT} AND fixVersion = "{fix_version(pi)}" '
@@ -249,7 +249,7 @@ def reviewing(pi: str) -> dict:
         planned_bv = getattr(issue.fields, PLANNED_BV_FIELD)
         objectives.append({
             "key": issue.key,
-            "url": f"{JIRA_URL}/browse/{issue.key}",
+            "url": issue_url(issue.key),
             "summary": issue.fields.summary,
             "labels": issue.fields.labels,
             "planned_bv": planned_bv,

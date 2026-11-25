@@ -38,7 +38,7 @@ argument-hint: '[issue key or number, plus optional focus notes]'
       - no clear verdict → post without transitioning, then ask. If someone else should verify too, offer to tag the ticket's reporter (`issue.fields.reporter.name`, as `[~name]`) in the comment.
 
    Write the calls into a temp script under `$TEMP`, because quotes and newlines break one-liners. Run it with the venv Python from `test 1`, then delete it.
-6. **Confirm back:** the key (as a `<JIRA_URL>/browse/<KEY>` link, where `JIRA_URL` already ends in `/agile`), the attachments, the comment posted and the new status.
+6. **Confirm back:** the key (as a link from `issue_url(<KEY>)` in jira_client.py, printed by a script), the attachments, the comment posted and the new status.
 
 ## Supplying offers
 When staging has no offer of the type a ticket needs, the user can hand the agent one to ingest through the gateway with the staging token. It files the offer under the customer "AUTO Tester".

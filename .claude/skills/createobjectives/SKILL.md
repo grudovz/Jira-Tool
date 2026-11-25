@@ -34,7 +34,7 @@ argument-hint: '<PI, e.g. 27.1> <epic keys in priority order> [ENV overrides]'
    It prints JSON: `fix_version_exists`, the PI's `iterations` (sprint, end date) and per epic its summary/description/status, `planned_bv`, `stories_per_iteration`, `stories_in_ip_sprint`, the resulting `iteration` and `target_end`, and any `existing_objectives` (TRS only — other teams link their own objectives to the same epics). More than 10 epics raises an error: ask the user for the values.
 2. **Stop and tell the user** if `fix_version_exists` is false (don't create the version), or if `iterations` is empty or differs from a sprint list they shared (the board names may not follow `<PI>-<N>` yet).
 3. **Draft the summary and description** for each epic from its summary and description, following the conventions above. Keep it to what the epic actually promises; don't invent scope.
-4. **Show the draft in chat** as one table — PBV, Epic (linked, `<JIRA_URL>/browse/<KEY>`, plus its summary), Iteration (with the story count per iteration), Target end, Summary, Description — and list anything to decide underneath:
+4. **Show the draft in chat** as one table — PBV, Epic (linked with `issue_url(<KEY>)` from jira_client.py, printed by the script; plus its summary), Iteration (with the story count per iteration), Target end, Summary, Description — and list anything to decide underneath:
    - `iteration` is null (no stories in the PI's sprints yet): ask which iteration
    - `stories_in_ip_sprint` > 0: the epic runs into the IP sprint; ask whether to keep the last numbered iteration
    - `existing_objectives` is not empty: it will be skipped

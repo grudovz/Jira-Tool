@@ -57,7 +57,7 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
    "
    ```
 5. **Zero matches** → say so plainly, stop here.
-6. **Display the full matched list in chat** — Key (linked, `<JIRA_URL>/browse/<KEY>`), Summary, Component, existing fixVersion(s) — and **always wait for the user's explicit go-ahead** before writing anything to JIRA. Never apply the update in the same turn the list is first shown.
+6. **Display the full matched list in chat** — Key (linked with `issue_url(<KEY>)` from jira_client.py, printed by the script), Summary, Component, existing fixVersion(s) — and **always wait for the user's explicit go-ahead** before writing anything to JIRA. Never apply the update in the same turn the list is first shown.
    - Flag any matched issue that already carries another version of the same release series (same name apart from the number, e.g. `Bistro Connect release 2` when tagging `release 3`). A release starts on the previous release's release date, so an issue moved to Done on that boundary day can fall in both windows; let the user decide whether it stays in the earlier release only.
    - In the same message, state the closing actions that follow the tagging, so the one go-ahead covers all of them: mark `<FIX_VERSION>` as released, and create `<NEXT_NAME>` starting `<previous release date>` with no release date (step 10/11). If the next name can't be derived (no trailing digits), say so now.
 7. **On confirmation, apply the fix version to each matched issue.** Re-fetch each issue's current `fixVersions` immediately before updating (don't rely on the list from step 4/6, which may be stale) and add the target version alongside whatever is already there — never remove an existing fixVersion:
