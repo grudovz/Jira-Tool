@@ -44,3 +44,4 @@ ALP IL components: ALP IL - Administration, ALP IL - Operation, ALP IL - Reserva
 - Read-only — only ever calls `search_issues`; never updates, comments on, or transitions any issue.
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function.
 - Companion to `/search` (generic filtered compact list) and `/fetch` (single known key, full detail) — this skill is the fixed-filter, full-detail, multi-issue combination of the two, purpose-built for "what do I need to test right now."
+- If the output is too large to read straight from the terminal, dump it to `test 1/temp/` (gitignored scratch), never the project root or `drafts/`.

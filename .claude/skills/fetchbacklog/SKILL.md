@@ -69,3 +69,4 @@ description: 'Fetch every TRSC backlog item (sprint is EMPTY, or in the ALP IL b
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function. `attachment_helper.py` is fine to touch (see its own file), but keep it a thin wrapper.
 - No ALP IL exclusion (unlike `/fetchstaging`/`/releasenotes`) — backlog triage covers everything, and `sprint = 73312` ("ALP IL backlog") is explicitly included so ALP IL items filed directly into that standing sprint aren't missed.
 - `fetchbacklog_state.json` is gitignored — it's local run state, not project config.
+- If the output is too large to read straight from the terminal, dump it to `test 1/temp/` (gitignored scratch), never the project root or `drafts/`. The state file stays where it is.

@@ -73,3 +73,4 @@ description: 'Digest of TRSC comments mentioning the user (literal "[~zgrudov]" 
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing function.
 - Scoped to TRSC only; mentions are comments-only (not descriptions) — matches this tool's existing scope and how mentions are actually written in this project (see `/comment`'s mention-resolution logic).
 - `fetchmentions_state.json` is gitignored — it's local run state, not project config.
+- If the output is too large to read straight from the terminal, dump it to `test 1/temp/` (gitignored scratch), never the project root or `drafts/`. The state file stays where it is.

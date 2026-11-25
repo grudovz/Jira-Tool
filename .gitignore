@@ -34,3 +34,6 @@ attachment_cache/
 
 # Local-only team members table (colleague names/usernames/emails; repo is public)
 .github/team-members.md
+
+# Throwaway dumps of large fetch output (skills write here, never the project root)
+temp/

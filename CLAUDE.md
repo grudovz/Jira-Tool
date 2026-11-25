@@ -60,6 +60,7 @@ test 1/
     bistro requests/  — Gitignored saved Bistro POST /offers bodies, for /tester (`request: <file name>`) and the BC/trsc-regression ingest tests.
     objectives/       — Gitignored approved plan/close files (PI<PI>-plan.json, PI<PI>-close.json) from /createobjectives and /systemdemo.
     sprint review exports/ — Gitignored output folder of /exportsprintreview; Cowork picks the CSVs up from here automatically.
+  temp/               — Gitignored scratch for large fetch/search output that is too big to read from the terminal; never use the project root or drafts/ for it.
   analysis-context/   — Gitignored screenshots (current + reference) supplied as context for the /analyse skill.
   attachment_cache/  — Gitignored cache of downloaded JIRA attachments, keyed by issue; populated by attachment_helper.py for /fetch and /fetchbacklog.
   tests/

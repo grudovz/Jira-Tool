@@ -40,3 +40,4 @@ argument-hint: '[issue-key]'
 - Purely read-only against JIRA — only ever calls `get_issue`; never updates, comments on, or transitions the issue. Downloading attachments to the local cache is the one side effect (see step 4).
 - Do not touch `jira_client.py`, `story_parser.py`, or `coord_finder.py` — only call the existing `get_issue` function. `attachment_helper.py` is fine to touch (see its own file), but keep it a thin wrapper.
 - Companion to `/search` (fetching multiple issues by keyword/assignee/status — separate skill) and `/comment`/`/draft`/`/create` (the write-side skills) — together they cover reading and writing JIRA issues from chat.
+- If the output is too large to read straight from the terminal, dump it to `test 1/temp/` (gitignored scratch), never the project root or `drafts/`.
